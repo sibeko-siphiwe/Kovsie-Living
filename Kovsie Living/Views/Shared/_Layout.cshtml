@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Kovsie_Living</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Kovsie_Living.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-md navbar-light navigation position-fixed top-0 w-100" id="navigation">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/logo.png" alt="Kovsie Living" width="250" />
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse justify-content-center">
+                    <ul class="navbar-nav d-lg-none">
+                        <li class="nav-item d-lg-none">
+                            <a class="nav-link text-light" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+                        </li>
+                        <li class="nav-item d-lg-none">
+                            <a class="nav-link text-light" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="d-none d-md-block">
+                    <ul class="navbar-nav gap-2">
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Account" asp-action="Register" class="btn btn-dark">Register</a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-dark">Login</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-dark">Dashboard</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div>
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="bg-dark pt-5 pb-2 text-light">
+        <div class="container">
+
+            <div class="row gap-5 g-4 mb-4">
+
+                <div class="col-lg-4 col-md-6">
+                    <h4 class="heading mb-3">Kovsie Living</h4>
+
+                    <p class="text-secondary mb-3">
+                        A convenient digital platform for managing accommodation,
+                        estate services and payments for the UFS QwaQwa community.
+                    </p>
+
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-semibold mb-3">Services</h6>
+
+                    <ul class="list-unstyled">
+                        <li class="mb-2 text-secondary">Accommodation</li>
+                        <li class="mb-2 text-secondary">Rent Payments</li>
+                        <li class="mb-2 text-secondary">Water & Electricity</li>
+                        <li class="mb-2 text-secondary">Parking</li>
+                        <li class="mb-2 text-secondary">Refuse Collection</li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-semibold mb-3">Account & Support</h6>
+
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="/Account/Login"
+                               class="text-secondary text-decoration-none">
+                                Login
+                            </a>
+                        </li>
+
+                        <li class="mb-2">
+                            <a href="/Account/Register"
+                               class="text-secondary text-decoration-none">
+                                Create Account
+                            </a>
+                        </li>
+
+                        <li class="mb-2">
+                            <a href="#faq"
+                               class="text-secondary text-decoration-none">
+                                Help & FAQs
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="d-flex flex-column flex-md-row justify-content-between
+                    align-items-center border-top border-secondary
+                    pt-3 pb-2 gap-2">
+
+                <p class="m-0 small text-secondary">
+                    &copy; @DateTime.UtcNow.Year Kovsie Living. All rights reserved.
+                </p>
+
+                <p class="m-0 small text-secondary">
+                    University of the Free State · QwaQwa Campus
+                </p>
+
+            </div>
+
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

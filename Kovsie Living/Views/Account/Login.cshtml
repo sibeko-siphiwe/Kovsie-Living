@@ -1,0 +1,32 @@
+﻿@model LoginViewModel
+@{
+    ViewData["Title"] = "Access your account";
+}
+
+<div class="container">
+    <div class="py-5 d-flex justify-content-center align-items-center">
+        <form asp-action="Login" method="post" class="frmLogin mt-5">
+            <div class="text-center mb-5 mt-5">
+                <h2 class="display-6 m-0 heading">Welcome Back</h2>
+                <p class="m-0 lead text-muted">Access your account to get started</p>
+            </div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label" id="userNameLabel"></label>
+                <input asp-for="Username" class="form-control" placeholder="e.g 2010936382" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" placeholder="Enter your new password" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+            <div class="form-switch form-check mb-1">
+                <input asp-for="RememberMe" class="form-check-input" />
+                <label asp-for="RememberMe" class="form-label"></label>
+            </div>
+            <button type="submit" class="btn btn-dark w-100 mb-3">Login</button>
+            <p class="text-center">Don't have an account? <a asp-action="Register" asp-controller="Account">Register</a></p>
+        </form>
+    </div>
+</div>

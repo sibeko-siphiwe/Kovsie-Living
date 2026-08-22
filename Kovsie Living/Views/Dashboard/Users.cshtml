@@ -1,0 +1,140 @@
+﻿@{
+    ViewData["Title"] = "Manage Users";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid">
+    
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4">
+        <div>
+            <h2 class="heading display-6 m-0">Manage Users</h2>
+            <p class="m-0 lead text-muted">Manage the estate payment with ease from this dashboard.</p>
+        </div>
+        <a asp-action="Create" asp-controller="Users" class="btn btn-dark"><i class="fas fa-add me-2"></i>Create New User</a>
+    </div>
+
+    <div class="mb-4">
+        <div class="p-3 bg-white shadow-sm rounded">
+            <form method="get" asp-action="Users">
+                <div class="row g-2 gap-2">
+                    <div class="col-md-4">
+                        <input name="searchTerm" placeholder="Search by name, email, or number..." class="form-control" value="@ViewBag.SearchTerm" />
+                    </div>
+                    <div class="col-md-3">
+                        <select name="roleFilter" class="form-select">
+                            <option value="">User Type</option>
+                            <option value="Student" selected="@(ViewBag.RoleFilter == "Officer")">Student</option>
+                            <option value="Staff" selected="@(ViewBag.RoleFilter == "Customer")">Staff Member</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="statusFilter" class="form-select">
+                            <option value="">All Status</option>
+                            <option value="Active" selected="@(ViewBag.StatusFilter == "Active")">Active</option>
+                            <option value="Inactive" selected="@(ViewBag.StatusFilter == "Inactive")">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-md">
+                        <button type="submit" class="btn btn-dark w-100">
+                            <i class="fas fa-filter me-2"></i>Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header text-center border-0 bg-white pb-0">
+            <h6 class="m-0 p-0 pt-2">Registered Users</h6>
+        </div>
+        <div class="card-body">
+            <div class="p-5 text-center border-top">
+                <i class="fas fa-user-alt fa-3x text-muted m-3"></i>
+                <h5 class="text-muted">No Active Users Yet</h5>
+                <p class="mb-3 text-muted">Registered Customers will appear down here !</p>
+            </div>
+            @* @if (Model.Any())
+            {
+                <div class="table-responsive-lg">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Email Address</th>
+                                <th>Unit Number</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var u in Model)
+                            {
+                                <tr>
+                                    <td>@u.FullName</td>
+                                    <td>@u.Email</td>
+                                    <td>
+                                        @if (u.Student != null)
+                                        {
+                                            @u.Student.UnitNumber
+                                        }
+                                        else if (u.Staff != null)
+                                        {
+                                            @u.Staff.UnitNumber
+                                        }
+                                        else
+                                        {
+                                            @:N/A
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (u.IsActive)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Inactive</span>
+                                        }
+                                    </td>
+                                    <td class="nav-item dropdown">
+                                        <button class="btn btn-sm btn-outline-dark w-100 dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Actions
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu2">
+                                            <a asp-action="Details" asp-controller="Users" asp-route-id="@u.Id" class="dropdown-item">
+                                                <i class="fas fa-eye me-2"></i>View User
+                                            </a>
+                                            <a asp-action="Update" asp-controller="Users" asp-route-id="@u.Id" class="dropdown-item">
+                                                <i class="fas fa-edit me-2"></i>Update User
+                                            </a>
+                                            <a asp-action="ChangePassword" asp-controller="Users" asp-route-id="@u.Id" class="dropdown-item">
+                                                <i class="fas fa-lock me-2"></i>Change Password
+                                            </a>
+                                            <form asp-action="Delete" asp-controller="Users" method="post" class="m-0" onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                                <input type="hidden" name="id" value="@u.Id" />
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fas fa-trash me-2"></i>Delete User
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+
+                <div class="p-5 text-center border-top">
+                    <i class="fas fa-user-alt fa-3x text-muted m-3"></i>
+                    <h5 class="text-muted">No Active Users Yet</h5>
+                    <p class="mb-3 text-muted">Registered Customers will appear down here !</p>
+                </div>
+            } *@
+        </div>
+    </div>
+
+</div>

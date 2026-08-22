@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewData["Title"] - Kovsie_Living</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Kovsie_Living.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row g-0"> 
+            <div class="col-md-3 col-lg-3 border-end bg-white text-dark shadow-sm d-none d-md-block">
+                <div class="min-vh-100 d-flex flex-column">
+                    <div class="flex-grow-1">
+                        <div class="p-3 border-bottom">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-2 bg-light shadow-sm bg-opacity-50 rounded">
+                                    <i class="fas fa-building text-dark"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold" style="letter-spacing: 1px">Kovsie Living</h6>
+                                    <p class="small m-0">Financial Officer</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="px-3 py-3">
+                            <ul class="nav flex-column gap-2">
+                                <li class="nav-item">
+                                    <a asp-action="Index" asp-controller="Dashboard" class="nav-link text-dark nav-link-active px-3 py-2">
+                                        <i class="fas fa-gauge me-2"></i>Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="Users" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                        <i class="fas fa-user-group me-2"></i>Manage Users
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="Officers" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                        <i class="fas fa-user-shield me-2"></i>Manage Officers
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <a asp-action="" asp-controller="" class="btn btn-outline-danger m-3">
+                        <i class="fas fa-sign-out-alt me-2"></i>Sign Out
+                    </a>
+                </div>
+            </div>
+             
+            <div class="sidebar-mobile bg-dark text-light shadow-lg" id="mobileSidebar">
+                <div class="min-vh-100 d-flex flex-column">
+                    <div class="flex-grow-1">
+                        <div class="p-3 border-bottom border-secondary d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-2 bg-light bg-opacity-50 rounded">
+                                    <i class="fas fa-building text-dark"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold" style="letter-spacing: 1px">Kovsie Living</h6>
+                                    <p class="small m-0 text-muted">Financial Officer</p>
+                                </div>
+                            </div>
+                            <button class="btn btn-link text-light p-0" id="closeSidebarBtn" aria-label="Close menu">
+                                <i class="fas fa-times fs-5"></i>
+                            </button>
+                        </div>
+
+                        <div class="px-3 py-3">
+                            <ul class="nav flex-column gap-2">
+                                <li class="nav-item">
+                                    <a asp-action="" asp-controller="" class="nav-link text-light nav-link-active px-3 py-2">
+                                        <i class="fas fa-gauge me-2"></i>Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="Users" asp-controller="Dashboard" class="nav-link text-light nav-link-hover px-3 py-2">
+                                        <i class="fas fa-users me-2"></i>Manage Users
+                                    </a>
+                                </li> 
+                            </ul>
+                        </div>
+                    </div>
+
+                    <a asp-action="" asp-controller="" class="btn btn-outline-light m-3">
+                        <i class="fas fa-sign-out-alt me-2"></i>Sign Out
+                    </a>
+                </div>
+            </div>
+             
+            <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+             
+            <div class="col p-0">
+                <div class="d-flex flex-column"> 
+                    <div class="border-bottom bg-white p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center gap-2"> 
+                                <button class="btn btn-outline-secondary d-md-none" id="menuToggleBtn" aria-label="Toggle menu">
+                                    <i class="fas fa-bars"></i>
+                                </button>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-2 bg-light border rounded">
+                                    <h6 class="m-0">US</h6>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Username</h6>
+                                    <p class="text-muted small m-0">Administrator</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     
+                    <div class="main-scroll-area p-2 p-md-2 p-lg-2">
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
