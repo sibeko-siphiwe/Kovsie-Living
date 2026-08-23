@@ -7,6 +7,7 @@ namespace Kovsie_Living.Data.Repositories
     {
         IEnumerable<ApplicationUser> GetAllCustomers();
         IEnumerable<ApplicationUser> GetAllOfficers();
+        IEnumerable<Tariff> GetActiveTariffs();
     }
 
     public class DashboardRepository : IDashboardRepository
@@ -15,6 +16,13 @@ namespace Kovsie_Living.Data.Repositories
         public DashboardRepository(AppDbContext context)
         {
             _context = context;
+        }
+
+        public IEnumerable<Tariff> GetActiveTariffs()
+        {
+            return _context.Tariffs
+                .OrderBy(t => t.Name)
+                .ToList();
         }
 
         public IEnumerable<ApplicationUser> GetAllCustomers()
@@ -35,7 +43,7 @@ namespace Kovsie_Living.Data.Repositories
             return _context.Users
                 .Include(u => u.Student)
                 .Include(u => u.Staff)
-                .Where(u => customerUserIds.Contains(u.Id) && u.IsActive)
+                .Where(u => customerUserIds.Contains(u.Id))
                 .ToList();
         }
 
@@ -58,6 +66,6 @@ namespace Kovsie_Living.Data.Repositories
                 .Include(u => u.FinancialOfficer)
                 .Where(u => officerUserIds.Contains(u.Id))
                 .ToList();
-        }
+        } 
     }
 }

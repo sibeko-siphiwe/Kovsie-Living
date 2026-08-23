@@ -1,5 +1,4 @@
 ﻿<!DOCTYPE html>
-
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
@@ -13,7 +12,7 @@
 <body>
     <div class="container-fluid p-0">
         <div class="row g-0"> 
-            <div class="col-md-3 col-lg-3 border-end bg-white shadow-sm d-none d-md-block">
+            <div class="col-md-3 col-lg-2 border-end bg-white shadow-sm d-none d-md-block">
                 <div class="p-3 border-bottom">
                     <div class="d-flex align-items-center gap-3">
                         <div class="p-2 bg-light shadow-sm bg-opacity-50 rounded">
@@ -21,32 +20,99 @@
                         </div>
                         <div>
                             <h6 class="mb-0 fw-bold" style="letter-spacing: 1px">Kovsie Living</h6>
-                            <p class="small m-0">Financial Officer</p>
+                            <p class="small m-0">
+                                @if (User.IsInRole("Administrator"))
+                                {
+                                    @:Administrator
+                                }
+                                else if (User.IsInRole("Officer"))
+                                {
+                                    @:Financial Officer
+                                }
+                                else
+                                {
+                                    @:Customer
+                                }
+                            </p>
                         </div>
                     </div>
                 </div>
 
                 <div class="p-3">
                     <ul class="nav flex-column gap-2">
-                        <li class="nav-item">
-                            <a asp-action="Index" asp-controller="Dashboard" class="nav-link text-dark nav-link-active px-3 py-2">
-                                <i class="fas fa-gauge me-2"></i>Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-action="Customers" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
-                                <i class="fas fa-user-group me-2"></i>Manage Customers
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-action="Officers" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
-                                <i class="fas fa-user-shield me-2"></i>Manage Officers
-                            </a>
-                        </li>
+                         
+                        @if (User.IsInRole("Administrator"))
+                        {
+                            <li class="nav-item">
+                                <a asp-action="Index" asp-controller="Dashboard" class="nav-link text-dark nav-link-active px-3 py-2">
+                                    <i class="fas fa-gauge me-2"></i>System Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-action="Customers" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                    <i class="fas fa-user-group me-2"></i>Manage Customers
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-action="Officers" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                    <i class="fas fa-user-shield me-2"></i>Manage Officers
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-action="Tariffs" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                    <i class="fas fa-tags me-2"></i>Manage Tariffs
+                                </a>
+                            </li>
+                        }
+                         
+                        @if (User.IsInRole("Officer"))
+                        {
+                            <li class="nav-item">
+                                <a asp-action="OfficerDashboard" asp-controller="Dashboard" class="nav-link text-dark nav-link-active px-3 py-2">
+                                    <i class="fas fa-gauge me-2"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-action="Customers" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                    <i class="fas fa-user-group me-2"></i>Manage Customers
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-action="Tariffs" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                    <i class="fas fa-tags me-2"></i>View Tariffs
+                                </a>
+                            </li>
+                        }
+                         
+                        <!-- CLIENT NAVIGATION -->
+                        @if (User.IsInRole("Customer"))
+                        {
+                            <li class="nav-item">
+                                <a asp-action="Index" asp-controller="Client" class="nav-link text-dark nav-link-active px-3 py-2">
+                                    <i class="fas fa-gauge me-2"></i>Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-action="MakePayment" asp-controller="Payment" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                    <i class="fas fa-credit-card me-2"></i>Make Payment
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-action="History" asp-controller="Payment" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                    <i class="fas fa-clock-rotate me-2"></i>Payment History
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-action="Profile" asp-controller="Client" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                    <i class="fas fa-user me-2"></i>My Profile
+                                </a>
+                            </li>
+                        }
+
                     </ul>
                 </div>
-            </div>
-             
+            </div> 
+
             <div class="sidebar-mobile bg-white shadow-sm" id="mobileSidebar">
                 <div class="min-vh-100 d-flex flex-column">
 
@@ -57,46 +123,114 @@
                             </div>
                             <div>
                                 <h6 class="mb-0 fw-bold" style="letter-spacing: 1px">Kovsie Living</h6>
-                                <p class="small m-0">Financial Officer</p>
-                            </div> 
+                                <p class="small m-0">
+                                    @if (User.IsInRole("Administrator"))
+                                    {
+                                        @:Administrator
+                                    }
+                                    else if (User.IsInRole("Officer"))
+                                    {
+                                        @:Financial Officer
+                                    }
+                                    else
+                                    {
+                                        @:Customer
+                                    }
+                                </p>
+                            </div>
                         </div>
                     </div>
 
                     <div class="p-3">
                         <ul class="nav flex-column gap-2">
-                            <li class="nav-item">
-                                <a asp-action="Index" asp-controller="Dashboard" class="nav-link text-dark nav-link-active px-3 py-2">
-                                    <i class="fas fa-gauge me-2"></i>Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a asp-action="Users" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
-                                    <i class="fas fa-user-group me-2"></i>Manage Users
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a asp-action="Officers" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
-                                    <i class="fas fa-user-shield me-2"></i>Manage Officers
-                                </a>
-                            </li>
+                             
+                            @if (User.IsInRole("Administrator"))
+                            {
+                                <li class="nav-item">
+                                    <a asp-action="Index" asp-controller="Dashboard" class="nav-link text-dark nav-link-active px-3 py-2">
+                                        <i class="fas fa-gauge me-2"></i>System Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="Customers" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                        <i class="fas fa-user-group me-2"></i>Manage Customers
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="Officers" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                        <i class="fas fa-user-shield me-2"></i>Manage Officers
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="Tariffs" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                        <i class="fas fa-tags me-2"></i>Manage Tariffs
+                                    </a>
+                                </li>
+                            }
+                             
+                            @if (User.IsInRole("Officer"))
+                            {
+                                <li class="nav-item">
+                                    <a asp-action="OfficerDashboard" asp-controller="Dashboard" class="nav-link text-dark nav-link-active px-3 py-2">
+                                        <i class="fas fa-gauge me-2"></i>Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="Customers" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                        <i class="fas fa-user-group me-2"></i>Manage Customers
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="Tariffs" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                        <i class="fas fa-tags me-2"></i>View Tariffs
+                                    </a>
+                                </li>
+                            }
+                             
+                            <!-- CLIENT NAVIGATION -->
+                            @if (User.IsInRole("Customer"))
+                            {
+                                <li class="nav-item">
+                                    <a asp-action="Index" asp-controller="Client" class="nav-link text-dark nav-link-active px-3 py-2">
+                                        <i class="fas fa-gauge me-2"></i>Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="MakePayment" asp-controller="Payment" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                        <i class="fas fa-credit-card me-2"></i>Make Payment
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="History" asp-controller="Payment" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                        <i class="fas fa-clock-rotate me-2"></i>Payment History
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-action="Profile" asp-controller="Client" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                        <i class="fas fa-user me-2"></i>My Profile
+                                    </a>
+                                </li>
+                            }
+
                         </ul>
                     </div>
-                    
+
                 </div>
             </div>
              
             <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
              
             <div class="col p-0">
-                <div class="d-flex flex-column"> 
-                    <div class="border-bottom bg-white shadow-sm p-2">
+                <div class="d-flex flex-column">
+                     
+                    <div class="border-bottom bg-white p-2">
                         <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center gap-2"> 
+                            <div class="d-flex align-items-center gap-2">
                                 <button class="btn btn-outline-secondary d-md-none" id="menuToggleBtn" aria-label="Toggle menu">
                                     <i class="fas fa-bars"></i>
                                 </button>
                             </div>
-
+                            <a asp-action="Index" asp-controller="Home"><img src="~/images/logo.png" width="188" alt="Kovsie Living Logo" /></a>
                             <div>
                                 <ul class="navbar-nav gap-2 align-items-center">
                                     <li class="nav-item dropdown">
@@ -105,9 +239,22 @@
                                                 <div class="p-2 bg-light border rounded">
                                                     <i class="fas fa-user"></i>
                                                 </div>
-                                                <div class="text-start">
-                                                    <h6 class="mb-0">@User.Identity.Name@@ufs4life.ac.za</h6>
-                                                    <p class="text-muted small m-0">Administrator</p>
+                                                <div class="text-start d-none d-sm-block">
+                                                    <h6 class="mb-0">@User.Identity.Name</h6>
+                                                    <p class="text-muted small m-0">
+                                                        @if (User.IsInRole("Administrator"))
+                                                        {
+                                                            @:Administrator
+                                                        }
+                                                        else if (User.IsInRole("Officer"))
+                                                        {
+                                                            @:Financial Officer
+                                                        }
+                                                        else
+                                                        {
+                                                            @:Customer
+                                                        }
+                                                    </p>
                                                 </div>
                                             </div>
                                         </button>
@@ -116,7 +263,7 @@
                                                 <button type="submit" class="dropdown-item">
                                                     <i class="fas fa-door-open me-2"></i>Sign Out
                                                 </button>
-                                            </form> 
+                                            </form>
                                         </div>
                                     </li>
                                 </ul>
@@ -127,8 +274,10 @@
                     <div class="main-scroll-area p-2 p-md-2 p-lg-2">
                         @RenderBody()
                     </div>
+
                 </div>
             </div>
+
         </div>
     </div>
 

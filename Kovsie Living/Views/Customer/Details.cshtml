@@ -1,265 +1,299 @@
 ﻿@model ApplicationUser
 @{
-    ViewData["Title"] = "User Details";
+    ViewData["Title"] = "Customer Profile";
     Layout = "_DashboardLayout";
+
+    // Determine user type
+    var isStudent = Model.Student != null;
+    var isStaff = Model.Staff != null;
+    var userType = isStudent ? "Student" : (isStaff ? "Staff" : "Unknown");
+
+    // Get unit number
+    var unitNumber = isStudent ? Model.Student?.UnitNumber :
+                     (isStaff ? Model.Staff?.UnitNumber : "N/A");
+
+    // Get vehicle count
+    var vehicleCount = isStudent ? Model.Student?.VehicleNumber ?? 0 :
+                       (isStaff ? Model.Staff?.VehicleNumber ?? 0 : 0);
+
+    // Get approval status
+    var isApproved = isStudent ? (Model.Student?.IsApproved ?? false) :
+                     (isStaff ? (Model.Staff?.IsApproved ?? false) : true);
+
+    // Combined status
+    string statusBadge;
+    string statusColor;
+    if (!Model.IsActive)
+    {
+        statusBadge = "Inactive";
+        statusColor = "bg-danger";
+    }
+    else if (!isApproved)
+    {
+        statusBadge = "Pending";
+        statusColor = "bg-warning text-dark";
+    }
+    else
+    {
+        statusBadge = "Active";
+        statusColor = "bg-success";
+    }
 }
 
 <div class="container-fluid">
 
-    <div class="d-flex justify-content-between flex-wrap gap-2 align-items-end mb-4">
+    <!-- ========================================== -->
+    <!-- PAGE HEADER                                -->
+    <!-- ========================================== -->
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4">
         <div>
-            <h2 class="heading display-6">User Details</h2>
-            <p class="m-0 text-muted lead">View complete user information and payment history</p>
+            <h2 class="heading display-6 m-0">Customer Profile</h2>
+            <p class="m-0 lead text-muted">@Model.FullName · @Model.UserName</p>
         </div>
-        <div class="d-flex gap-2">
-            <a asp-action="Update" asp-route-id="@Model.Id" class="btn btn-outline-dark"><i class="fas fa-edit me-2"></i>Edit User</a>
-            <a asp-action="Users" asp-controller="Dashboard" class="btn btn-dark"><i class="fas fa-arrow-left me-2"></i>Back to Users</a>
-        </div>
-    </div>
-
-    <div class="mb-4">
-        <div class="row g-2">
-            <div class="col-md">
-                <div class="p-3 border rounded">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="mb-1">Total Paid</h6>
-                            <h2 class="mb-1">R @ViewBag.TotalPaid.ToString("F2")</h2>
-                            <p class="text-muted small m-0">Completed payments</p>
-                        </div>
-                        <div class="border border-success bg-success bg-opacity-10 p-2 rounded shadow-sm">
-                            <i class="fas fa-check-circle text-success"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md">
-                <div class="p-3 border rounded">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="mb-1">Outstanding</h6>
-                            <h2 class="mb-1">R @ViewBag.TotalPending.ToString("F2")</h2>
-                            <p class="text-muted small m-0">Pending payments</p>
-                        </div>
-                        <div class="border border-warning bg-warning bg-opacity-10 p-2 rounded shadow-sm">
-                            <i class="fas fa-clock text-warning"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md">
-                <div class="p-3 border rounded">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="mb-1">Total Payments</h6>
-                            <h2 class="mb-1">@ViewBag.PaymentsCount</h2>
-                            <p class="text-muted small m-0">All transactions</p>
-                        </div>
-                        <div class="border border-info bg-info bg-opacity-10 p-2 rounded shadow-sm">
-                            <i class="fas fa-receipt text-info"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a asp-action="Customers" asp-controller="Dashboard" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Customers
+            </a>
+            <a asp-action="Update" asp-controller="Customer" asp-route-id="@Model.Id" class="btn btn-outline-dark">
+                <i class="fas fa-edit me-2"></i>Edit
+            </a>
+            <a asp-action="ChangePassword" asp-controller="Customer" asp-route-id="@Model.Id" class="btn btn-outline-dark">
+                <i class="fas fa-lock me-2"></i>Change Password
+            </a>
         </div>
     </div>
 
-    <div class="row g-3 mb-4">
-        <div class="col-md-6">
-            <div class="p-3 border rounded h-100">
-                <h6 class="mb-3">Personal Information</h6>
-                <table class="table table-borderless m-0">
-                    <tr>
-                        <td class="text-muted" width="40%">Full Name</td>
-                        <td>@Model.FullName</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Email</td>
-                        <td>@Model.Email</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Username</td>
-                        <td>@Model.UserName</td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Role</td>
-                        <td>
-                            <span class="badge bg-primary">@ViewBag.Role</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Account Status</td>
-                        <td>
-                            @if (Model.IsActive)
+    <!-- ========================================== -->
+    <!-- PROFILE SUMMARY CARD                      -->
+    <!-- ========================================== -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3 text-center">
+                <div class="col-6 col-md-2">
+                    <div class="p-3 bg-light rounded-3">
+                        <div class="text-muted small text-uppercase">Username</div>
+                        <div class="fw-bold">@Model.UserName</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <div class="p-3 bg-light rounded-3">
+                        <div class="text-muted small text-uppercase">User Type</div>
+                        <div>
+                            @if (isStudent)
                             {
-                                <span class="badge bg-success">Active</span>
+                                <span class="badge bg-primary">Student</span>
+                            }
+                            else if (isStaff)
+                            {
+                                <span class="badge bg-info text-dark">Staff</span>
                             }
                             else
                             {
-                                <span class="badge bg-danger">Inactive</span>
+                                <span class="badge bg-secondary">Unknown</span>
                             }
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="text-muted">Registered</td>
-                        <td>@Model.CreatedAt.ToString("dd MMM yyyy")</td>
-                    </tr>
-                </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <div class="p-3 bg-light rounded-3">
+                        <div class="text-muted small text-uppercase">Status</div>
+                        <div>
+                            <span class="badge @statusColor">@statusBadge</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <div class="p-3 bg-light rounded-3">
+                        <div class="text-muted small text-uppercase">Unit Number</div>
+                        <div class="fw-bold">@unitNumber</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <div class="p-3 bg-light rounded-3">
+                        <div class="text-muted small text-uppercase">Vehicles</div>
+                        <div class="fw-bold">@vehicleCount</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2">
+                    <div class="p-3 bg-light rounded-3">
+                        <div class="text-muted small text-uppercase">Joined</div>
+                        <div class="fw-bold">@Model.CreatedAt.ToString("dd MMM yyyy")</div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            @if (Model.Student != null)
-            {
-                <div class="p-3 border rounded h-100">
-                    <h6 class="mb-3">Student Information</h6>
-                    <table class="table table-borderless m-0">
-                        <tr>
-                            <td class="text-muted" width="40%">Student Number</td>
-                            <td>@Model.Student.StudentNumber</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Unit Number</td>
-                            <td>@(string.IsNullOrEmpty(Model.Student.UnitNumber) ? "N/A" : Model.Student.UnitNumber)</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Vehicles</td>
-                            <td>@Model.Student.VehicleNumber</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">User Type</td>
-                            <td><span class="badge bg-info">Student</span></td>
-                        </tr>
-                    </table>
-                </div>
-            }
-            else if (Model.Staff != null)
-            {
-                <div class="p-3 border rounded h-100">
-                    <h6 class="mb-3">Staff Information</h6>
-                    <table class="table table-borderless m-0">
-                        <tr>
-                            <td class="text-muted" width="40%">Staff Number</td>
-                            <td>@Model.Staff.StaffNumber</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Unit Number</td>
-                            <td>@(string.IsNullOrEmpty(Model.Staff.UnitNumber) ? "N/A" : Model.Staff.UnitNumber)</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Vehicles</td>
-                            <td>@Model.Staff.VehicleNumber</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">User Type</td>
-                            <td><span class="badge bg-info">Staff</span></td>
-                        </tr>
-                    </table>
-                </div>
-            }
-            else if (Model.FinancialOfficer != null)
-            {
-                <div class="p-3 border rounded h-100">
-                    <h6 class="mb-3">Officer Information</h6>
-                    <table class="table table-borderless m-0">
-                        <tr>
-                            <td class="text-muted" width="40%">Employee Number</td>
-                            <td>@Model.FinancialOfficer.EmployeeNumber</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Phone Number</td>
-                            <td>@Model.FinancialOfficer.PhoneNumber</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Authorized</td>
-                            <td>
-                                @if (Model.FinancialOfficer.IsAuthorized)
-                                {
-                                    <span class="badge bg-success">Authorized</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-warning text-dark">Pending</span>
-                                }
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">User Type</td>
-                            <td><span class="badge bg-secondary">Financial Officer</span></td>
-                        </tr>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="p-3 border rounded h-100">
-                    <h6 class="mb-3">User Information</h6>
-                    <p class="text-muted m-0">Administrator Account</p>
-                </div>
-            }
         </div>
     </div>
 
-    @* <div class="mb-4">
-        <div class="p-3 border rounded shadow-sm">
-            <div class="d-flex justify-content-between mb-2">
-                <h6>Payment History</h6>
-                <a asp-action="Create" asp-controller="Payment" class="btn btn-sm btn-dark"><i class="fas fa-add me-1"></i>Record Payment</a>
+    <!-- ========================================== -->
+    <!-- PERSONAL INFORMATION                      -->
+    <!-- ========================================== -->
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="m-0 fw-semibold">
+                        <i class="fas fa-user me-2"></i>Personal Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="text-muted small text-uppercase">First Name</div>
+                            <div class="fw-semibold">@Model.FirstName</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small text-uppercase">Last Name</div>
+                            <div class="fw-semibold">@Model.LastName</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-muted small text-uppercase">Email</div>
+                            <div class="fw-semibold">@Model.Email</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-muted small text-uppercase">Phone Number</div>
+                            <div class="fw-semibold">@(string.IsNullOrEmpty(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-muted small text-uppercase">Last Login</div>
+                            <div class="fw-semibold">@(Model.LastLoginAt.HasValue? Model.LastLoginAt.Value.ToString("dd MMM yyyy, HH:mm") : "Never")</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            @if (((List<    Payment>)ViewBag.Payments).Any())
-            {
-                <div class="table-responsive-lg">
-                    <table class="table table-bordered align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Tariff</th>
-                                <th>Amount</th>
-                                <th>Due Date</th>
-                                <th>Status</th>
-                                <th>Reference</th>
-                                <th>Created</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var p in (List<Payment>)ViewBag.Payments)
-                            {
-                                <tr>
-                                    <td>@p.Tariff.Name</td>
-                                    <td>R @p.Amount.ToString("F2")</td>
-                                    <td>@(p.DueDate?.ToString("dd MMM yyyy") ?? "N/A")</td>
-                                    <td>
-                                        @switch (p.Status)
-                                        {
-                                            case "Paid":
-                                                <span class="badge bg-success">Paid</span>
-                                                break;
-                                            case "Pending":
-                                                <span class="badge bg-warning text-dark">Pending</span>
-                                                break;
-                                            case "Overdue":
-                                                <span class="badge bg-danger">Overdue</span>
-                                                break;
-                                            case "Cancelled":
-                                                <span class="badge bg-secondary">Cancelled</span>
-                                                break;
-                                        }
-                                    </td>
-                                    <td>@(p.ReferenceNumber ?? "N/A")</td>
-                                    <td>@p.CreatedAt.ToString("dd MMM yyyy")</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="p-5 text-center border-top">
-                    <i class="fas fa-receipt fa-3x text-muted m-3"></i>
-                    <h5 class="text-muted">No Payment History</h5>
-                    <p class="mb-3 text-muted">No payments have been recorded for this user</p>
-                </div>
-            }
         </div>
-    </div> *@
+
+        <!-- ========================================== -->
+        <!-- ESTATE INFORMATION                        -->
+        <!-- ========================================== -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="m-0 fw-semibold">
+                        <i class="fas fa-home me-2"></i>Estate Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="text-muted small text-uppercase">Unit Number</div>
+                            <div class="fw-semibold">@unitNumber</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-muted small text-uppercase">Vehicle Count</div>
+                            <div class="fw-semibold">@vehicleCount</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small text-uppercase">Account Status</div>
+                            <div>
+                                <span class="badge @(Model.IsActive ? "bg-success" : "bg-danger")">
+                                    @(Model.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small text-uppercase">Approval</div>
+                            <div>
+                                <span class="badge @(isApproved ? "bg-success" : "bg-warning text-dark")">
+                                    @(isApproved ? "Approved" : "Pending")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-muted small text-uppercase">Role</div>
+                            <div class="fw-semibold">@ViewBag.UserRole</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- PAYMENT SUMMARY                           -->
+    <!-- ========================================== -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-header bg-white border-bottom">
+            <h6 class="m-0 fw-semibold">
+                <i class="fas fa-credit-card me-2"></i>Payment Summary
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="row g-3 text-center mb-4">
+                <div class="col-md-4">
+                    <div class="p-3 bg-success bg-opacity-10 rounded-3 border border-success">
+                        <div class="text-muted small text-uppercase">Total Paid</div>
+                        <div class="h4 m-0 text-success">R @ViewBag.TotalPaid.ToString("N2")</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-warning bg-opacity-10 rounded-3 border border-warning">
+                        <div class="text-muted small text-uppercase">Total Pending</div>
+                        <div class="h4 m-0 text-warning">R @ViewBag.TotalPending.ToString("N2")</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-info bg-opacity-10 rounded-3 border border-info">
+                        <div class="text-muted small text-uppercase">Payments Count</div>
+                        <div class="h4 m-0 text-info">@ViewBag.PaymentsCount</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Payments Placeholder -->
+            <div class="alert alert-info mb-0">
+                <i class="fas fa-info-circle me-2"></i>
+                Payment history will be available once the transaction system is implemented.
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ADMIN ACTIONS (Admin Only)                -->
+    <!-- ========================================== -->
+    @if (User.IsInRole("Administrator"))
+    {
+        <div class="card shadow-sm mt-4 border-danger">
+            <div class="card-header bg-white border-bottom border-danger">
+                <h6 class="m-0 fw-semibold text-danger">
+                    <i class="fas fa-shield-alt me-2"></i>Admin Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+
+                    <!-- Approve / Unapprove -->
+                    @if (isStudent || isStaff)
+                    {
+                        <form asp-action="ToggleApproval" asp-controller="Customer" method="post" class="m-0">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn @(isApproved ? "btn-outline-warning" : "btn-outline-success")">
+                                <i class="fas @(isApproved ? "fa-times-circle" : "fa-check-circle") me-2"></i>
+                                @(isApproved ? "Unapprove User" : "Approve User")
+                            </button>
+                        </form>
+                    }
+
+                    <!-- Activate / Deactivate -->
+                    <form asp-action="ToggleActive" asp-controller="Customer" method="post" class="m-0">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn @(Model.IsActive ? "btn-outline-warning" : "btn-outline-success")">
+                            <i class="fas @(Model.IsActive ? "fa-pause-circle" : "fa-play-circle") me-2"></i>
+                            @(Model.IsActive ? "Deactivate User" : "Activate User")
+                        </button>
+                    </form>
+
+                    <!-- Delete -->
+                    <form asp-action="Delete" asp-controller="Customer" method="post" class="m-0"
+                          onsubmit="return confirm('Are you sure you want to delete @Model.FullName? This action cannot be undone.')">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="fas fa-trash me-2"></i>Delete User
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    }
 
 </div>

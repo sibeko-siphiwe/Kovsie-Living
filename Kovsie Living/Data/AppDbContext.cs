@@ -12,6 +12,7 @@ namespace Kovsie_Living.Data
         public DbSet<Student> Students { get; set; }
         public DbSet<Staff> Staff { get; set; }
         public DbSet<FinancialOfficer> FinancialOfficers { get; set; }
+        public DbSet<Tariff> Tariffs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -42,6 +43,11 @@ namespace Kovsie_Living.Data
                       .WithOne(u => u.FinancialOfficer)
                       .HasForeignKey<FinancialOfficer>(f => f.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<Tariff>(entity =>
+            {
+                entity.HasKey(t => t.TariffId);
             });
         }
     }

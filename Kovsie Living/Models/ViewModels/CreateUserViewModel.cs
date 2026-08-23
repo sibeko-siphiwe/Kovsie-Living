@@ -8,21 +8,34 @@ namespace Kovsie_Living.Models.ViewModels
     {
         [Required(ErrorMessage = "First Name is required")]
         [DisplayName("First Name")]
-        [StringLength(50, ErrorMessage = "First Name cannot exceed 50 characters")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "First Name must be between 2 and 50 characters")]
+        [RegularExpression(@"^[a-zA-Z\s\-']+$", ErrorMessage = "First Name can only contain letters, spaces, hyphens and apostrophes")]
         public string FirstName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Last Name is required")]
         [DisplayName("Last Name")]
-        [StringLength(50, ErrorMessage = "Last Name cannot exceed 50 characters")]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "Last Name must be between 2 and 50 characters")]
+        [RegularExpression(@"^[a-zA-Z\s\-']+$", ErrorMessage = "Last Name can only contain letters, spaces, hyphens and apostrophes")]
         public string LastName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Student/Staff Number is required")]
         [DisplayName("Student/Staff Number")]
-        [RegularExpression(@"^[0-9]+$", ErrorMessage = "Only numbers are allowed")]
+        [StringLength(20, MinimumLength = 3, ErrorMessage = "Number must be between 3 and 20 characters")]
+        [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = "Only letters and numbers are allowed")]
         public string UserName { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "Temporary Password is required")]
+        [DisplayName("Temporary Password")]
+        [DataType(DataType.Password)]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$",
+            ErrorMessage = "Password must have at least one uppercase, one lowercase, one number, and one special character (@$!%*?&)")]
+        public string TemporaryPassword { get; set; } = GenerateTemporaryPassword();
+
+        [Required(ErrorMessage = "Unit Number is required")]
         [DisplayName("Unit Number")]
-        [StringLength(10, ErrorMessage = "Unit Number cannot exceed 10 characters")]
+        [StringLength(20, MinimumLength = 1, ErrorMessage = "Unit Number must be between 1 and 20 characters")]
+        [RegularExpression(@"^[a-zA-Z0-9\s\-/]+$", ErrorMessage = "Unit Number can only contain letters, numbers, spaces, hyphens and slashes")]
         public string UnitNumber { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Number of Vehicles is required")]
@@ -34,11 +47,8 @@ namespace Kovsie_Living.Models.ViewModels
         [DisplayName("I am a Student")]
         public bool IsStudent { get; set; } = true;
 
-        [Required(ErrorMessage = "Temporary Password is required")]
-        [DisplayName("Temporary Password")]
-        [DataType(DataType.Password)]
-        [StringLength(100, MinimumLength = 8, ErrorMessage = "Password must be at least 8 characters")]
-        public string TemporaryPassword { get; set; } = GenerateTemporaryPassword();
+        public bool IsStaff => !IsStudent;
+        public string Email => $"{UserName?.Trim()}@ufs.ac.za";
 
         public static string GenerateTemporaryPassword()
         {
@@ -63,4 +73,4 @@ namespace Kovsie_Living.Models.ViewModels
             return new string(password.OrderBy(_ => RandomNumberGenerator.GetInt32(100)).ToArray());
         }
     }
-} 
+}

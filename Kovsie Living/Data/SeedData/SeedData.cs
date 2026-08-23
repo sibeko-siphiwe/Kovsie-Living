@@ -17,6 +17,9 @@ namespace Kovsie_Living.Data.SeedData
 
         public static async Task EnsurePopulated(IApplicationBuilder app)
         {
+            AppDbContext _context = app.ApplicationServices
+                .CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
+
             using var scope = app.ApplicationServices.CreateScope();
             var services = scope.ServiceProvider;
 
@@ -52,6 +55,51 @@ namespace Kovsie_Living.Data.SeedData
                 {
                     await userManager.AddToRoleAsync(admin, "Administrator");
                 }
+            }
+
+            if (!_context.Tariffs.Any())
+            {
+                var tariffs = new List<Tariff>
+                {
+                    new Tariff
+                    {
+                        Name = "Electricity",
+                        Amount = 1500.00m,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new Tariff
+                    {
+                        Name = "Rent",
+                        Amount = 3500.00m,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new Tariff
+                    {
+                        Name = "Water Usage",
+                        Amount = 800.00m,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new Tariff
+                    {
+                        Name = "Parking Fee",
+                        Amount = 500.00m,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    new Tariff
+                    {
+                        Name = "Refuse",
+                        Amount = 300.00m,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    }
+                };
+
+                _context.Tariffs.AddRange(tariffs);
+                await _context.SaveChangesAsync();
             }
         }
     }

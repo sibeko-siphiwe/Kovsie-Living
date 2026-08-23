@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 using System.Runtime.CompilerServices;
 
 namespace Kovsie_Living.Controllers
@@ -19,43 +20,41 @@ namespace Kovsie_Living.Controllers
             _context = context;
         }
 
-        //public async Task<IActionResult> Details(string id)
-        //{
-        //    var user = await _context.Users
-        //        .Include(u => u.Student)
-        //        .Include(u => u.Staff)
-        //        .Include(u => u.FinancialOfficer)
-        //        .FirstOrDefaultAsync(u => u.Id == id);
+        [HttpGet]
+        public async Task<IActionResult> Details(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                TempData["message"] = "Invalid user identifier";
+                return RedirectToAction("Customers", "Dashboard");
+            }
 
-        //    if (user == null)
-        //    {
-        //        TempData["message"] = "User not found";
-        //        return RedirectToAction("Users", "Dashboard");
-        //    }
-             
-        //    var roles = await _userManager.GetRolesAsync(user);
-        //    ViewBag.Role = roles.FirstOrDefault() ?? "N/A";
+            var user = await _context.Users
+                .Include(u => u.Student)
+                .Include(u => u.Staff)
+                .Include(u => u.FinancialOfficer)
+                .FirstOrDefaultAsync(u => u.Id == id);
 
-        //    ViewBag.Payments = await _context.Payments
-        //        .Include(p => p.Tariff)
-        //        .Where(p => p.UserId == id)
-        //        .OrderByDescending(p => p.CreatedAt)
-        //        .ToListAsync();
+            if (user == null)
+            {
+                TempData["message"] = "User not found";
+                return RedirectToAction("Customers", "Dashboard");
+            }
 
-        //    ViewBag.TotalPaid = await _context.Payments
-        //        .Where(p => p.UserId == id && p.Status == "Paid")
-        //        .SumAsync(p => p.Amount);
+            // Get user roles
+            var roles = await _userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault() ?? "Customer";
 
-        //    ViewBag.TotalPending = await _context.Payments
-        //        .Where(p => p.UserId == id && (p.Status == "Pending" || p.Status == "Overdue"))
-        //        .SumAsync(p => p.Amount);
+            // Get payment summary (placeholder - will be implemented later)
+            ViewBag.TotalPaid = 4200.00m;      // Placeholder
+            ViewBag.TotalPending = 1800.00m;   // Placeholder
+            ViewBag.PaymentsCount = 8;         // Placeholder
 
-        //    ViewBag.PaymentsCount = await _context.Payments
-        //        .Where(p => p.UserId == id)
-        //        .CountAsync();
+            // Pass role to view
+            ViewBag.UserRole = role;
 
-        //    return View(user);
-        //}
+            return View(user);
+        }
 
         [HttpGet]
         public IActionResult Create()
@@ -72,60 +71,69 @@ namespace Kovsie_Living.Controllers
             {
                 try
                 {
-                    var exists = await _userManager.FindByNameAsync(model.UserName);
-
+                    var exists = await _userManager.FindByNameAsync(model.UserName.Trim());
                     if (exists != null)
                     {
-                        ModelState.AddModelError("", "User is already registered, please login.");
+                        ModelState.AddModelError("", "This student/staff number is already registered.");
+                        return View(model);
+                    }
+
+                    var emailExists = await _userManager.FindByEmailAsync(model.Email);
+                    if (emailExists != null)
+                    {
+                        ModelState.AddModelError("", "An account with this email already exists.");
                         return View(model);
                     }
 
                     var user = new ApplicationUser
                     {
-                        FirstName = model.FirstName,
-                        LastName = model.LastName,
-                        UserName = model.UserName,
-                        Email = $"{model.UserName}@ufs.ac.za",
+                        FirstName = model.FirstName.Trim(),
+                        LastName = model.LastName.Trim(),
+                        UserName = model.UserName.Trim(),
+                        Email = model.Email,
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow
                     };
 
-                    var results = await _userManager.CreateAsync(user, model.TemporaryPassword);
+                    var result = await _userManager.CreateAsync(user, model.TemporaryPassword);
 
-                    if (results.Succeeded)
+                    if (result.Succeeded)
                     {
                         if (model.IsStudent)
                         {
                             var student = new Student
                             {
-                                StudentNumber = model.UserName,
+                                StudentNumber = model.UserName.Trim(),
                                 UnitNumber = model.UnitNumber?.Trim(),
                                 VehicleNumber = model.VehicleNumber,
+                                IsApproved = true,
                                 UserId = user.Id
                             };
-
                             _context.Students.Add(student);
                         }
                         else
                         {
                             var staff = new Staff
                             {
-                                StaffNumber = model.UserName,
+                                StaffNumber = model.UserName.Trim(),
                                 UnitNumber = model.UnitNumber?.Trim(),
                                 VehicleNumber = model.VehicleNumber,
+                                IsApproved = true,
                                 UserId = user.Id
                             };
-
                             _context.Staff.Add(staff);
                         }
 
-                        var roleResult = await _userManager.AddToRoleAsync(user, "Customers");
+                        var roleResult = await _userManager.AddToRoleAsync(user, "Customer");
 
                         if (roleResult.Succeeded)
                         {
-                            await _context.SaveChangesAsync(); 
+                            await _context.SaveChangesAsync();
+                            TempData["message"] = $"User {user.FullName} created successfully!";
+                            TempData["messageType"] = "success"; 
                             return RedirectToAction("Customers", "Dashboard");
                         }
+
                         foreach (var error in roleResult.Errors)
                         {
                             ModelState.AddModelError("", error.Description);
@@ -133,14 +141,19 @@ namespace Kovsie_Living.Controllers
                         await _userManager.DeleteAsync(user);
                         return View(model);
                     }
-                    foreach (var error in results.Errors)
+
+                    foreach (var error in result.Errors)
                     {
-                        ModelState.AddModelError("", $"An error has occured: {error.Description.ToString()}");
+                        ModelState.AddModelError("", error.Description);
                     }
+                }
+                catch (DbException)
+                {
+                    ModelState.AddModelError("", "A database error occurred. Please try again.");
                 }
                 catch (Exception)
                 {
-                    ModelState.AddModelError("", "An error occured while creating user");
+                    ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
                 }
             }
             return View(model);
@@ -185,7 +198,6 @@ namespace Kovsie_Living.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(EditUserViewModel model)
         {
@@ -199,6 +211,7 @@ namespace Kovsie_Living.Controllers
                 if (user == null)
                 {
                     TempData["message"] = "User not found";
+                    TempData["messageType"] = "danger";
                     return RedirectToAction("Customers", "Dashboard");
                 }
 
@@ -235,14 +248,15 @@ namespace Kovsie_Living.Controllers
                 {
                     await _context.SaveChangesAsync();
                     TempData["message"] = "User updated successfully";
+                    TempData["messageType"] = "success";
 
-                    if (!User.IsInRole("Customers"))
+                    if (!User.IsInRole("Customer"))
                     {
                         return RedirectToAction("Customers", "Dashboard");
                     }
                     else
                     {
-                        return RedirectToAction("Account", "Profile");
+                        return RedirectToAction("Profile", "Account");
                     }
                 }
 
@@ -283,6 +297,7 @@ namespace Kovsie_Living.Controllers
                 if (user == null)
                 {
                     TempData["message"] = "User not found";
+                    TempData["messageType"] = "danger";
                     return RedirectToAction("Customers", "Dashboard");
                 }
 
@@ -292,6 +307,7 @@ namespace Kovsie_Living.Controllers
                 if (result.Succeeded)
                 {
                     TempData["message"] = "Password changed successfully";
+                    TempData["messageType"] = "success";
                     return RedirectToAction("Customers", "Dashboard");
                 }
 
@@ -316,10 +332,10 @@ namespace Kovsie_Living.Controllers
             if (user == null)
             {
                 TempData["message"] = "User not found";
+                TempData["messageType"] = "danger";
                 return RedirectToAction("Customers", "Dashboard");
             }
-
-            // Remove related profile
+             
             if (user.Student != null)
             {
                 _context.Students.Remove(user.Student);
@@ -339,12 +355,74 @@ namespace Kovsie_Living.Controllers
             if (result.Succeeded)
             {
                 TempData["message"] = "User deleted successfully";
+                TempData["messageType"] = "success";
             }
             else
             {
                 TempData["message"] = "Failed to delete user";
+                TempData["messageType"] = "danger";
             }
 
+            return RedirectToAction("Customers", "Dashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleApproval(string id)
+        {
+            var user = await _context.Users
+                .Include(u => u.Student)
+                .Include(u => u.Staff)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+            {
+                TempData["message"] = "User not found";
+                TempData["messageType"] = "danger";
+                return RedirectToAction("Customers", "Dashboard");
+            }
+
+            if (user.Student != null)
+            {
+                user.Student.IsApproved = !user.Student.IsApproved;
+                await _context.SaveChangesAsync();
+                TempData["message"] = $"Student {(user.Student.IsApproved ? "approved" : "unapproved")} successfully";
+                TempData["messageType"] = "success";
+            }
+            else if (user.Staff != null)
+            {
+                user.Staff.IsApproved = !user.Staff.IsApproved;
+                await _context.SaveChangesAsync();
+                TempData["message"] = $"Staff {(user.Staff.IsApproved ? "approved" : "unapproved")} successfully";
+                TempData["messageType"] = "success";
+            }
+            else
+            {
+                TempData["message"] = "User is not a customer";
+                TempData["messageType"] = "danger";
+            }
+
+            return RedirectToAction("Customers", "Dashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleActive(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                TempData["message"] = "User not found";
+                TempData["messageType"] = "danger"; 
+                return RedirectToAction("Customers", "Dashboard");
+            }
+
+            user.IsActive = !user.IsActive;
+            await _userManager.UpdateAsync(user);
+            await _context.SaveChangesAsync();
+
+            TempData["message"] = $"User {(user.IsActive ? "activated" : "deactivated")} successfully";
+            TempData["messageType"] = "success";
             return RedirectToAction("Customers", "Dashboard");
         }
     }

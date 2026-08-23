@@ -1,0 +1,61 @@
+﻿@model CreateOfficerViewModel
+@{
+    ViewData["Title"] = "Create Financial Officer";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid">
+
+    <div class="mb-4">
+        <h2 class="heading display-6">Create Financial Officer</h2>
+        <p class="m-0 text-muted lead">Register new officer to the system to get started</p>
+    </div>
+
+    <form asp-action="Create" method="post">
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <div class="row g-2">
+                <div class="col-md">
+                    <div>
+                        <label asp-for="FirstName" class="form-label"></label>
+                        <input asp-for="FirstName" class="form-control" placeholder="e.g John" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div>
+                        <label asp-for="LastName" class="form-label"></label>
+                        <input asp-for="LastName" class="form-control" placeholder="e.g Doe" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="EmployeeNumber" class="form-label"></label>
+            <input asp-for="EmployeeNumber" class="form-control" placeholder="e.g 50123456" />
+            <span asp-validation-for="EmployeeNumber" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PhoneNumber" class="form-label"></label>
+            <input asp-for="PhoneNumber" class="form-control" placeholder="e.g 0712345678" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="TemporaryPassword" class="form-label"></label>
+            <div class="input-group">
+                <input type="text" asp-for="TemporaryPassword" class="form-control" />
+            </div>
+            <span asp-validation-for="TemporaryPassword" class="text-danger small"></span>
+        </div>
+
+        <button type="submit" class="btn btn-dark w-100">Create Officer</button>
+
+    </form>
+
+</div>

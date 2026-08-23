@@ -1,0 +1,36 @@
+﻿@model EditTariffViewModel
+@{
+    ViewData["Title"] = "Edit Tariff";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid">
+
+    <div class="mb-4">
+        <h2 class="heading display-6">Edit Tariff</h2>
+        <p class="m-0 text-muted lead">Update tariff details</p>
+    </div>
+
+    <form asp-action="Edit" method="post">
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <input type="hidden" asp-for="TariffId" />
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" placeholder="e.g Electricity" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Amount" class="form-label"></label>
+            <input asp-for="Amount" class="form-control" placeholder="e.g 1500.00" />
+            <span asp-validation-for="Amount" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-dark w-100">Update Tariff</button>
+
+    </form>
+
+</div>

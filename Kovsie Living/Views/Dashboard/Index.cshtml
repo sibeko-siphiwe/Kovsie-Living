@@ -17,6 +17,7 @@
         </div>
     </div>
 
+    <!-- Statistics Cards -->
     <div class="mb-4">
         <div class="row gap-2 g-2">
             <div class="col-md">
@@ -46,7 +47,7 @@
                         </div>
                     </div>
                 </div>
-            </div> 
+            </div>
             <div class="col-md">
                 <div class="p-3 border rounded">
                     <div class="d-flex justify-content-between align-items-start">
@@ -64,16 +65,17 @@
         </div>
     </div>
 
+    <!-- Charts -->
     <div class="mb-4">
         <div class="row gap-2 g-2">
             <div class="col-md">
                 <div class="card">
                     <div class="card-header text-center border-0 bg-white">
-                        <h6>Revenue by Tariffs</h6>
+                        <h6>System Status</h6>
                     </div>
                     <div class="card-body">
                         <div style="position: relative; height: 250px;">
-                            <canvas id="revenueByTariffChart"></canvas>
+                            <canvas id="systemStatusChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -92,7 +94,8 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- User Table -->
     <div>
         <div class="card">
             <div class="card-header text-center border-0 bg-white pb-0">
@@ -181,5 +184,109 @@
             </div>
         </div>
     </div>
-    
+
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            var ctx1 = document.getElementById('systemStatusChart').getContext('2d');
+
+            var gradient1 = ctx1.createLinearGradient(0, 0, 200, 200);
+            gradient1.addColorStop(0, '#198754');
+            gradient1.addColorStop(1, '#20c997');
+
+            var gradient2 = ctx1.createLinearGradient(0, 0, 200, 200);
+            gradient2.addColorStop(0, '#dc3545');
+            gradient2.addColorStop(1, '#f87171');
+
+            new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Active', 'Inactive'],
+                    datasets: [{
+                        data: [@Model.ActiveUsers, @Model.InactiveUsers],
+                        backgroundColor: [gradient1, gradient2],
+                        borderWidth: 3,
+                        borderColor: '#ffffff',
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: {
+                                    size: 13,
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // ==========================================
+            // CHART 2: Payment Status - Bar Chart with Rounded Corners
+            // ==========================================
+            var ctx2 = document.getElementById('paymentStatusChart').getContext('2d');
+
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['Approved', 'Pending'],
+                    datasets: [{
+                        label: 'Customers',
+                        data: [@Model.ApprovedUsers, @Model.PendingUsers],
+                        backgroundColor: [
+                            'rgba(25, 135, 84, 0.8)',
+                            'rgba(255, 193, 7, 0.8)'
+                        ],
+                        borderColor: ['#198754', '#ffc107'],
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        barThickness: 60
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 13,
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+        });
+    </script>
+}
