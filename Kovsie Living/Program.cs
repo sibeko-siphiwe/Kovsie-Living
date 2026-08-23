@@ -1,4 +1,5 @@
 using Kovsie_Living.Data;
+using Kovsie_Living.Data.Repositories;
 using Kovsie_Living.Data.SeedData;
 using Kovsie_Living.Models;
 using Microsoft.AspNetCore.Identity;
@@ -15,6 +16,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 
 var app = builder.Build();
 

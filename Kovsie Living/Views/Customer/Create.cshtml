@@ -1,0 +1,83 @@
+﻿@model CreateUserViewModel
+@{
+    ViewData["Title"] = "Create User";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid">
+
+    <div class="mb-4">
+        <h2 class="heading display-6">Create New User</h2>
+        <p class="m-0 text-muted lead">Register new user to the system to get started</p>
+    </div>
+
+    <form asp-action="Create" method="post">
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <div class="btn-group w-100" role="group" id="userTypeToggle">
+                <input type="radio" class="btn-check" asp-for="IsStudent" value="true" id="studentRadio" autocomplete="off" checked>
+                <label class="btn btn-outline-dark" for="studentRadio">Student</label>
+
+                <input type="radio" class="btn-check" asp-for="IsStudent" value="false" id="staffRadio" autocomplete="off">
+                <label class="btn btn-outline-dark" for="staffRadio">Staff</label>
+            </div>
+            <span asp-validation-for="IsStudent" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <div class="row g-2">
+                <div class="col-md">
+                    <div>
+                        <label asp-for="FirstName" class="form-label"></label>
+                        <input asp-for="FirstName" class="form-control" placeholder="e.g John" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div>
+                        <label asp-for="LastName" class="form-label"></label>
+                        <input asp-for="LastName" class="form-control" placeholder="e.g Doe" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="UserName" class="form-label" id="userNameLabel">Student Number</label>
+            <input asp-for="UserName" class="form-control" placeholder="e.g 2010936382" />
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <div class="row g-2">
+                <div class="col-md">
+                    <div>
+                        <label asp-for="UnitNumber" class="form-label"></label>
+                        <input asp-for="UnitNumber" class="form-control" placeholder="e.g A450" />
+                        <span asp-validation-for="UnitNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div>
+                        <label asp-for="VehicleNumber" class="form-label"></label>
+                        <input asp-for="VehicleNumber" class="form-control" placeholder="e.g 3" />
+                        <span asp-validation-for="VehicleNumber" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="TemporaryPassword" class="form-label"></label>
+            <div class="input-group">
+                <input type="text" asp-for="TemporaryPassword" class="form-control" />
+            </div>
+            <span asp-validation-for="TemporaryPassword" class="text-danger small"></span>
+        </div>
+
+        <button type="submit" class="btn btn-dark w-100">Create User</button>
+
+    </form>
+
+</div>
+

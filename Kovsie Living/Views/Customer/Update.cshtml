@@ -1,0 +1,74 @@
+﻿@model EditUserViewModel
+@{
+    ViewData["Title"] = "Update User Details";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid">
+
+    <div class="mb-4">
+        <h2 class="heading display-6">Update User</h2>
+        <p class="m-0 text-muted lead">Edit user details and update to match relevant information</p>
+    </div>
+
+    <form asp-action="Update" method="post">
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="IsStudent" />
+
+        <div class="mb-3">
+            <label class="form-label">User Type</label>
+            <input class="form-control" value="@(Model.IsStudent ? "Student" : "Staff")" readonly />
+        </div>
+
+        <div class="mb-3">
+            <div class="row g-2">
+                <div class="col-md">
+                    <div>
+                        <label asp-for="FirstName" class="form-label"></label>
+                        <input asp-for="FirstName" class="form-control" placeholder="e.g John" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div>
+                        <label asp-for="LastName" class="form-label"></label>
+                        <input asp-for="LastName" class="form-control" placeholder="e.g Doe" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="UserName" class="form-label">
+                @(Model.IsStudent ? "Student Number" : "Staff Number")
+            </label>
+            <input asp-for="UserName" class="form-control" placeholder="e.g 2010936382" />
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <div class="row g-2">
+                <div class="col-md">
+                    <div>
+                        <label asp-for="UnitNumber" class="form-label"></label>
+                        <input asp-for="UnitNumber" class="form-control" placeholder="e.g A450" />
+                        <span asp-validation-for="UnitNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div>
+                        <label asp-for="VehicleNumber" class="form-label"></label>
+                        <input asp-for="VehicleNumber" class="form-control" placeholder="e.g 3" />
+                        <span asp-validation-for="VehicleNumber" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-dark w-100">Update User</button>
+
+    </form>
+
+</div>

@@ -1,0 +1,265 @@
+﻿@model ApplicationUser
+@{
+    ViewData["Title"] = "User Details";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between flex-wrap gap-2 align-items-end mb-4">
+        <div>
+            <h2 class="heading display-6">User Details</h2>
+            <p class="m-0 text-muted lead">View complete user information and payment history</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Update" asp-route-id="@Model.Id" class="btn btn-outline-dark"><i class="fas fa-edit me-2"></i>Edit User</a>
+            <a asp-action="Users" asp-controller="Dashboard" class="btn btn-dark"><i class="fas fa-arrow-left me-2"></i>Back to Users</a>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <div class="row g-2">
+            <div class="col-md">
+                <div class="p-3 border rounded">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">Total Paid</h6>
+                            <h2 class="mb-1">R @ViewBag.TotalPaid.ToString("F2")</h2>
+                            <p class="text-muted small m-0">Completed payments</p>
+                        </div>
+                        <div class="border border-success bg-success bg-opacity-10 p-2 rounded shadow-sm">
+                            <i class="fas fa-check-circle text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="p-3 border rounded">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">Outstanding</h6>
+                            <h2 class="mb-1">R @ViewBag.TotalPending.ToString("F2")</h2>
+                            <p class="text-muted small m-0">Pending payments</p>
+                        </div>
+                        <div class="border border-warning bg-warning bg-opacity-10 p-2 rounded shadow-sm">
+                            <i class="fas fa-clock text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="p-3 border rounded">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">Total Payments</h6>
+                            <h2 class="mb-1">@ViewBag.PaymentsCount</h2>
+                            <p class="text-muted small m-0">All transactions</p>
+                        </div>
+                        <div class="border border-info bg-info bg-opacity-10 p-2 rounded shadow-sm">
+                            <i class="fas fa-receipt text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="p-3 border rounded h-100">
+                <h6 class="mb-3">Personal Information</h6>
+                <table class="table table-borderless m-0">
+                    <tr>
+                        <td class="text-muted" width="40%">Full Name</td>
+                        <td>@Model.FullName</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Email</td>
+                        <td>@Model.Email</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Username</td>
+                        <td>@Model.UserName</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Role</td>
+                        <td>
+                            <span class="badge bg-primary">@ViewBag.Role</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Account Status</td>
+                        <td>
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactive</span>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Registered</td>
+                        <td>@Model.CreatedAt.ToString("dd MMM yyyy")</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-6">
+            @if (Model.Student != null)
+            {
+                <div class="p-3 border rounded h-100">
+                    <h6 class="mb-3">Student Information</h6>
+                    <table class="table table-borderless m-0">
+                        <tr>
+                            <td class="text-muted" width="40%">Student Number</td>
+                            <td>@Model.Student.StudentNumber</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Unit Number</td>
+                            <td>@(string.IsNullOrEmpty(Model.Student.UnitNumber) ? "N/A" : Model.Student.UnitNumber)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Vehicles</td>
+                            <td>@Model.Student.VehicleNumber</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">User Type</td>
+                            <td><span class="badge bg-info">Student</span></td>
+                        </tr>
+                    </table>
+                </div>
+            }
+            else if (Model.Staff != null)
+            {
+                <div class="p-3 border rounded h-100">
+                    <h6 class="mb-3">Staff Information</h6>
+                    <table class="table table-borderless m-0">
+                        <tr>
+                            <td class="text-muted" width="40%">Staff Number</td>
+                            <td>@Model.Staff.StaffNumber</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Unit Number</td>
+                            <td>@(string.IsNullOrEmpty(Model.Staff.UnitNumber) ? "N/A" : Model.Staff.UnitNumber)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Vehicles</td>
+                            <td>@Model.Staff.VehicleNumber</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">User Type</td>
+                            <td><span class="badge bg-info">Staff</span></td>
+                        </tr>
+                    </table>
+                </div>
+            }
+            else if (Model.FinancialOfficer != null)
+            {
+                <div class="p-3 border rounded h-100">
+                    <h6 class="mb-3">Officer Information</h6>
+                    <table class="table table-borderless m-0">
+                        <tr>
+                            <td class="text-muted" width="40%">Employee Number</td>
+                            <td>@Model.FinancialOfficer.EmployeeNumber</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Phone Number</td>
+                            <td>@Model.FinancialOfficer.PhoneNumber</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Authorized</td>
+                            <td>
+                                @if (Model.FinancialOfficer.IsAuthorized)
+                                {
+                                    <span class="badge bg-success">Authorized</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">User Type</td>
+                            <td><span class="badge bg-secondary">Financial Officer</span></td>
+                        </tr>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="p-3 border rounded h-100">
+                    <h6 class="mb-3">User Information</h6>
+                    <p class="text-muted m-0">Administrator Account</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    @* <div class="mb-4">
+        <div class="p-3 border rounded shadow-sm">
+            <div class="d-flex justify-content-between mb-2">
+                <h6>Payment History</h6>
+                <a asp-action="Create" asp-controller="Payment" class="btn btn-sm btn-dark"><i class="fas fa-add me-1"></i>Record Payment</a>
+            </div>
+            @if (((List<    Payment>)ViewBag.Payments).Any())
+            {
+                <div class="table-responsive-lg">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tariff</th>
+                                <th>Amount</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Reference</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in (List<Payment>)ViewBag.Payments)
+                            {
+                                <tr>
+                                    <td>@p.Tariff.Name</td>
+                                    <td>R @p.Amount.ToString("F2")</td>
+                                    <td>@(p.DueDate?.ToString("dd MMM yyyy") ?? "N/A")</td>
+                                    <td>
+                                        @switch (p.Status)
+                                        {
+                                            case "Paid":
+                                                <span class="badge bg-success">Paid</span>
+                                                break;
+                                            case "Pending":
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                break;
+                                            case "Overdue":
+                                                <span class="badge bg-danger">Overdue</span>
+                                                break;
+                                            case "Cancelled":
+                                                <span class="badge bg-secondary">Cancelled</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>@(p.ReferenceNumber ?? "N/A")</td>
+                                    <td>@p.CreatedAt.ToString("dd MMM yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="p-5 text-center border-top">
+                    <i class="fas fa-receipt fa-3x text-muted m-3"></i>
+                    <h5 class="text-muted">No Payment History</h5>
+                    <p class="mb-3 text-muted">No payments have been recorded for this user</p>
+                </div>
+            }
+        </div>
+    </div> *@
+
+</div>

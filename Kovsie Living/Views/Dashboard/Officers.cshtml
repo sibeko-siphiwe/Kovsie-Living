@@ -1,4 +1,4 @@
-﻿a@{
+﻿@{
     ViewData["Title"] = "Financial Officers";
     Layout = "_DashboardLayout";
 }
@@ -10,7 +10,7 @@
             <h2 class="heading display-6">Manage Officers</h2>
             <p class="m-0 text-muted lead">Manage financial officer accounts and assign authority</p>
         </div>
-        <a asp-action="Create" asp-controller="Officer" class="btn btn-dark"><i class="fas fa-add me-2"></i>Add New Officer</a>
+        <a asp-action="Create" asp-controller="Officer" class="btn btn-sm btn-dark"><i class="fas fa-add me-2"></i>Add New Officer</a>
     </div>
 
     @if (TempData["message"] != null)
@@ -25,17 +25,17 @@
             <form method="get" asp-action="Officer">
                 <div class="row g-2">
                     <div class="col-md-5">
-                        <input name="searchTerm" placeholder="Search by name, email, employee number or phone..." class="form-control" value="@ViewBag.SearchTerm" />
+                        <input name="searchTerm" placeholder="Search officer by name" class="form-control form-control-sm" value="@ViewBag.SearchTerm" />
                     </div>
                     <div class="col-md-4">
-                        <select name="statusFilter" class="form-select">
+                        <select name="statusFilter" class="form-select form-select-sm">
                             <option value="">All Status</option>
                             <option value="Active" selected="@(ViewBag.StatusFilter == "Active")">Active</option>
                             <option value="Inactive" selected="@(ViewBag.StatusFilter == "Inactive")">Inactive</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <button type="submit" class="btn btn-dark w-100">
+                        <button type="submit" class="btn btn-sm btn-dark w-100">
                             <i class="fas fa-filter me-2"></i>Filter
                         </button>
                     </div>
