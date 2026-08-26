@@ -1,0 +1,66 @@
+﻿@model EditUserViewModel
+@{
+    ViewData["Title"] = "Customer Profile";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-end mb-4 mt-3">
+        <div class="d-flex gap-2 align-items-center">
+            <div class="bg-secondary bg-opacity-10 border rounded-circle d-flex justify-content-center align-items-center" style="width: 70px; height: 70px;">
+                <span class="fs-3 fw-bolder text-muted">@Model.FirstName[0]@Model.LastName[0]</span>
+            </div>
+            <div>
+                <h2 class="m-0 heading">@Model.FirstName @Model.LastName</h2>
+                <p class="m-0 lead text-muted">@Model.UserName</p>
+            </div>
+        </div>
+        <a asp-action="ChangePassword" asp-controller="Customer" asp-route-id="" class="btn btn-sm btn-dark"><i class="fas fa-lock me-2"></i>Change Password</a>
+    </div>
+    <div class="card">
+        <div class="card-header text-center border-0 bg-white pb-0">
+            <h6 class="m-0 p-0 pt-2">Account Information</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="" method="post" class="border-top pt-3">
+                <div class="mb-3">
+                    <label></label>
+                    <input class="form-control" />
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md">
+                        <div>
+                            <label asp-for="FirstName"></label>
+                            <input class="form-control" asp-for="FirstName"/>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div>
+                            <label asp-for="LastName"></label>
+                            <input class="form-control" asp-for="LastName" />
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label></label>
+                    <input class="form-control" />
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md">
+                        <div>
+                            <label asp-for="UnitNumber"></label>
+                            <input class="form-control" asp-for="UnitNumber" />
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div>
+                            <label asp-for="VehicleNumber"></label>
+                            <input class="form-control" asp-for="VehicleNumber" />
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-dark w-100">Update Profile</button>
+            </form>
+        </div>
+    </div>
+</div>

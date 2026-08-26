@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Kovsie_Living.Controllers
 {
@@ -18,6 +19,11 @@ namespace Kovsie_Living.Controllers
         {
             _userManager = userManager;
             _context = context;
+        }
+
+        public IActionResult Index()
+        {
+            return View();
         }
 
         [HttpGet]
@@ -424,6 +430,32 @@ namespace Kovsie_Living.Controllers
             TempData["message"] = $"User {(user.IsActive ? "activated" : "deactivated")} successfully";
             TempData["messageType"] = "success";
             return RedirectToAction("Customers", "Dashboard");
+        }
+
+        public async Task<IActionResult> Profile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            var model = new EditUserViewModel
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                UserName = user.UserName,
+                IsStudent = user.Student != null,
+            };
+
+            if (user.Student != null)
+            {
+                model.UnitNumber = user.Student.UnitNumber;
+                model.VehicleNumber = user.Student.VehicleNumber;
+            }
+            else if (user.Staff != null)
+            {
+                model.UnitNumber = user.Staff.UnitNumber;
+                model.VehicleNumber = user.Staff.VehicleNumber;
+            }
+            return View(model);
         }
     }
 }
