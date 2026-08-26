@@ -18,7 +18,7 @@ namespace Kovsie_Living.Controllers
         {
             _userManager = userManager;
             _context = context;
-        }
+        } 
 
         [HttpGet]
         public IActionResult Create()

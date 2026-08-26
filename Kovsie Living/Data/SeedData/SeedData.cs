@@ -26,8 +26,7 @@ namespace Kovsie_Living.Data.SeedData
             var context = services.GetRequiredService<AppDbContext>();
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-
-            // Create roles if they don't exist
+             
             foreach (var role in Roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
@@ -35,8 +34,7 @@ namespace Kovsie_Living.Data.SeedData
                     await roleManager.CreateAsync(new IdentityRole(role));
                 }
             }
-
-            // Create admin user if it doesn't exist
+             
             var admin = await userManager.FindByNameAsync(Username);
             if (admin == null)
             {
