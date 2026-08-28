@@ -358,9 +358,16 @@ namespace Kovsie_Living.Controllers
 
                 if (result.Succeeded)
                 {
-                    TempData["message"] = "Password changed successfully";
-                    TempData["messageType"] = "success";
-                    return RedirectToAction("Customers", "Dashboard");
+                    if (User.IsInRole("Administrator")|| User.IsInRole("Officer"))
+                    {
+                        TempData["message"] = "Password changed successfully";
+                        TempData["messageType"] = "success";
+                        return RedirectToAction("Customers", "Dashboard");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Profile", "Customer");
+                    }
                 }
 
                 foreach (var error in result.Errors)

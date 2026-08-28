@@ -19,4 +19,8 @@
     <PackageReference Include="QuestPDF" Version="2026.8.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\reports\" />
+  </ItemGroup>
+
 </Project>

@@ -139,7 +139,7 @@ namespace Kovsie_Living.Controllers
                             await _context.SaveChangesAsync();
 
                             await _signInManager.SignInAsync(user, isPersistent: true);
-                            return RedirectToAction("Index", "Dashboard");
+                            return RedirectToAction("Index", "Customer");
                         }
                         foreach (var error in roleResult.Errors)
                         {

@@ -21,19 +21,19 @@
     }
 
     <div class="row gap-2 g-2 mb-4">
-        <div class="col-md-4">
+        <div class="col-md">
             <div class="p-3 border rounded">
                 <h6 class="text-muted mb-1">Total Paid</h6>
                 <h3 class="mb-0 text-success">R @Model.TotalPaid.ToString("N2")</h3>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md">
             <div class="p-3 border rounded">
                 <h6 class="text-muted mb-1">Pending Payments</h6>
                 <h3 class="mb-0 text-warning">R @Model.TotalPending.ToString("N2")</h3>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md">
             <div class="p-3 border rounded">
                 <h6 class="text-muted mb-1">Total Transactions</h6>
                 <h3 class="mb-0 text-primary">@Model.PaymentCount</h3>

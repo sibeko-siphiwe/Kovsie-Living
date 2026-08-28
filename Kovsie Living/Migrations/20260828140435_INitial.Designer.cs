@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Kovsie_Living.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260828133916_UpdateReportModel")]
-    partial class UpdateReportModel
+    [Migration("20260828140435_INitial")]
+    partial class INitial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -199,8 +199,7 @@ namespace Kovsie_Living.Migrations
 
                     b.Property<string>("FilePath")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("GeneratedByUserId")
                         .IsRequired()
