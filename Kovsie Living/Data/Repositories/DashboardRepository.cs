@@ -21,6 +21,7 @@ namespace Kovsie_Living.Data.Repositories
         public IEnumerable<Tariff> GetActiveTariffs()
         {
             return _context.Tariffs
+                .Where(t => t.IsActive)  
                 .OrderBy(t => t.Name)
                 .ToList();
         }

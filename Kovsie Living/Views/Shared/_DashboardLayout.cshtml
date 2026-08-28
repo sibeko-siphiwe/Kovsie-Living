@@ -63,6 +63,11 @@
                                     <i class="fas fa-tags me-2"></i>Manage Tariffs
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a asp-action="Pending" asp-controller="Payment" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                    <i class="fas fa-clock me-2"></i>Pending Payments
+                                </a>
+                            </li>
                         }
                          
                         @if (User.IsInRole("Officer"))
@@ -80,6 +85,11 @@
                             <li class="nav-item">
                                 <a asp-action="Tariffs" asp-controller="Dashboard" class="nav-link text-dark nav-link-hover px-3 py-2">
                                     <i class="fas fa-tags me-2"></i>Manage Payments
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-action="Pending" asp-controller="Payment" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                    <i class="fas fa-clock me-2"></i>Pending Payments
                                 </a>
                             </li>
                         }
@@ -191,7 +201,7 @@
                             @if (User.IsInRole("Customer"))
                             {
                                 <li class="nav-item">
-                                    <a asp-action="Index" asp-controller="Client" class="nav-link text-dark nav-link-active px-3 py-2">
+                                    <a asp-action="Index" asp-controller="Customer" class="nav-link text-dark nav-link-active px-3 py-2">
                                         <i class="fas fa-gauge me-2"></i>Dashboard
                                     </a>
                                 </li>
@@ -206,7 +216,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a asp-action="Profile" asp-controller="Client" class="nav-link text-dark nav-link-hover px-3 py-2">
+                                    <a asp-action="Profile" asp-controller="Customer" class="nav-link text-dark nav-link-hover px-3 py-2">
                                         <i class="fas fa-user me-2"></i>My Profile
                                     </a>
                                 </li>

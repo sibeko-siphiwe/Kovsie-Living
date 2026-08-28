@@ -63,6 +63,7 @@ namespace Kovsie_Living.Data.SeedData
                     {
                         Name = "Electricity",
                         Amount = 1500.00m,
+                        IsActive = true, 
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -70,6 +71,7 @@ namespace Kovsie_Living.Data.SeedData
                     {
                         Name = "Rent",
                         Amount = 3500.00m,
+                        IsActive = true, 
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -77,6 +79,7 @@ namespace Kovsie_Living.Data.SeedData
                     {
                         Name = "Water Usage",
                         Amount = 800.00m,
+                        IsActive = true,  
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -84,6 +87,7 @@ namespace Kovsie_Living.Data.SeedData
                     {
                         Name = "Parking Fee",
                         Amount = 500.00m,
+                        IsActive = true,  
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -91,6 +95,7 @@ namespace Kovsie_Living.Data.SeedData
                     {
                         Name = "Refuse",
                         Amount = 300.00m,
+                        IsActive = true, 
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     }

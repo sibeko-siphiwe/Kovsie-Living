@@ -14,6 +14,8 @@ namespace Kovsie_Living.Models
 
         public string Description => $"This is a fee for {Name}";
 
+        public bool IsActive { get; set; } = true;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

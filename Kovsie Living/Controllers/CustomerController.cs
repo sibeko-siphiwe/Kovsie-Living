@@ -21,9 +21,55 @@ namespace Kovsie_Living.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var userId = _userManager.GetUserId(User);
+            var user = await _context.Users
+                .Include(u => u.Student)
+                .Include(u => u.Staff)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var isStudent = user.Student != null;
+            var isStaff = user.Staff != null;
+            var isApproved = isStudent ? (user.Student?.IsApproved ?? false) : (isStaff ? (user.Staff?.IsApproved ?? false) : false);
+            var unitNumber = isStudent ? user.Student?.UnitNumber : (isStaff ? user.Staff?.UnitNumber : "N/A");
+
+            // Get payment stats - REAL DATA
+            var payments = await _context.Payments
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
+
+            var totalPaid = payments.Where(p => p.Status == "Paid").Sum(p => p.Amount);
+            var pendingPayments = payments.Where(p => p.Status == "Pending").Sum(p => p.Amount);
+            var transactionCount = payments.Count;
+
+            // Get recent transactions - REAL DATA (Last 5)
+            var recentTransactions = await _context.Payments
+                .Include(p => p.Tariff)
+                .Where(p => p.UserId == userId)
+                .OrderByDescending(p => p.PaymentDate)
+                .Take(5)
+                .ToListAsync();
+
+            var model = new CustomerDashboardViewModel
+            {
+                User = user,
+                IsStudent = isStudent,
+                IsStaff = isStaff,
+                UnitNumber = unitNumber ?? "N/A",
+                IsApproved = isApproved,
+                TotalPaid = totalPaid,
+                PendingPayments = pendingPayments,
+                TransactionCount = transactionCount,
+                RecentTransactions = recentTransactions  // ← NEW
+            };
+
+            return View(model);
         }
 
         [HttpGet]
@@ -432,9 +478,19 @@ namespace Kovsie_Living.Controllers
             return RedirectToAction("Customers", "Dashboard");
         }
 
+        [HttpGet]
         public async Task<IActionResult> Profile()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var userId = _userManager.GetUserId(User);
+            var user = await _context.Users
+                .Include(u => u.Student)
+                .Include(u => u.Staff)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             var model = new EditUserViewModel
             {
@@ -454,6 +510,68 @@ namespace Kovsie_Living.Controllers
             {
                 model.UnitNumber = user.Staff.UnitNumber;
                 model.VehicleNumber = user.Staff.VehicleNumber;
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Profile(EditUserViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _context.Users
+                    .Include(u => u.Student)
+                    .Include(u => u.Staff)
+                    .FirstOrDefaultAsync(u => u.Id == model.Id);
+
+                if (user == null)
+                {
+                    TempData["message"] = "User not found";
+                    TempData["messageType"] = "danger";
+                    return RedirectToAction("Index");
+                }
+
+                if (user.UserName != model.UserName)
+                {
+                    var existingUser = await _userManager.FindByNameAsync(model.UserName);
+                    if (existingUser != null && existingUser.Id != user.Id)
+                    {
+                        ModelState.AddModelError("", "Username is already taken");
+                        return View(model);
+                    }
+                }
+
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.UserName = model.UserName;
+                user.Email = $"{model.UserName}@ufs.ac.za";
+
+                if (user.Student != null)
+                {
+                    user.Student.UnitNumber = model.UnitNumber;
+                    user.Student.VehicleNumber = model.VehicleNumber;
+                }
+                else if (user.Staff != null)
+                {
+                    user.Staff.UnitNumber = model.UnitNumber;
+                    user.Staff.VehicleNumber = model.VehicleNumber;
+                }
+
+                var result = await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    await _context.SaveChangesAsync();
+                    TempData["message"] = "Profile updated successfully!";
+                    TempData["messageType"] = "success";
+                    return RedirectToAction("Index");
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
             }
             return View(model);
         }

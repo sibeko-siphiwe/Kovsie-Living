@@ -50,7 +50,14 @@ namespace Kovsie_Living.Controllers
 
                         if (results.Succeeded)
                         {
-                            return RedirectToAction("Index", "Dashboard");
+                            if (User.IsInRole("Administrator")|| User.IsInRole("Officer"))
+                            {
+                                return RedirectToAction("Index", "Dashboard");
+                            }
+                            else
+                            {
+                                return RedirectToAction("Index", "Customer");
+                            }
                         }
                         ModelState.AddModelError("", "Invalid username or password");
                     }

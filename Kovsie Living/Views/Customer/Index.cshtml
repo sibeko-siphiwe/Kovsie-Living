@@ -1,4 +1,4 @@
-﻿@model DashboardViewModel
+﻿@model CustomerDashboardViewModel
 @{
     ViewData["Title"] = "Customer Dashboard";
     Layout = "_DashboardLayout";
@@ -10,19 +10,38 @@
         <div class="d-flex justify-content-between align-items-end">
             <div>
                 <p class="m-0 lead">Welcome Back,</p>
-                <h2 class="m-0 heading">@User.Identity.Name</h2>
+                <h2 class="m-0 heading">@Model.User.FirstName @Model.User.LastName</h2>
+                <p class="m-0 text-secondary">
+                    @(Model.IsStudent ? "Student" : "Staff")
+                    @if (!string.IsNullOrEmpty(Model.UnitNumber))
+                    {
+                        <span class="text-secondary">· Unit @Model.UnitNumber</span>
+                    }
+                </p>
             </div>
-            <a class="btn btn-sm btn-outline-light"><i class="fas fa-hand-holding-dollar me-2"></i>Make Payment</a>
+            <a asp-action="MakePayment" asp-controller="Payment" class="btn btn-sm btn-outline-light">
+                <i class="fas fa-hand-holding-dollar me-2"></i>Make Payment
+            </a>
         </div>
     </div>
 
+    @if (TempData["message"] != null)
+    {
+        var messageType = TempData["messageType"]?.ToString() ?? "info";
+        <div class="alert alert-@messageType alert-dismissible fade show mb-3" role="alert">
+            @TempData["message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Statistics Cards -->
     <div class="row gap-2 g-2 mb-4">
         <div class="col-md">
             <div class="p-3 border rounded">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <h6 class="mb-1">Amount Paid</h6>
-                        <h2 class="mb-1">R0.00</h2>
+                        <h2 class="mb-1">R @Model.TotalPaid.ToString("N2")</h2>
                         <p class="text-muted small m-0">Total amount paid</p>
                     </div>
                     <div class="border border-success bg-success bg-opacity-10 p-2 rounded shadow-sm">
@@ -36,7 +55,7 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <h6 class="mb-1">Pending Payments</h6>
-                        <h2 class="mb-1">0</h2>
+                        <h2 class="mb-1">R @Model.PendingPayments.ToString("N2")</h2>
                         <p class="text-muted small m-0">Waiting for approval</p>
                     </div>
                     <div class="border border-warning bg-warning bg-opacity-10 p-2 rounded shadow-sm">
@@ -50,8 +69,8 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <h6 class="mb-1">Total Transactions</h6>
-                        <h2 class="mb-1">0</h2>
-                        <p class="text-muted small m-0">Transactions performed.</p>
+                        <h2 class="mb-1">@Model.TransactionCount</h2>
+                        <p class="text-muted small m-0">Transactions performed</p>
                     </div>
                     <div class="border border-primary bg-primary bg-opacity-10 p-2 rounded shadow-sm">
                         <i class="fas fa-file-alt text-primary"></i>
@@ -61,97 +80,72 @@
         </div>
     </div>
 
+    <!-- Recent Transactions -->
     <div>
         <div class="card">
             <div class="card-header text-center border-0 bg-white pb-0">
                 <h6 class="m-0 p-0 pt-2">Recent Transactions</h6>
             </div>
             <div class="card-body">
-                <div class="p-5 text-center border-top">
-                    <i class="fas fa-address-card fa-3x text-muted m-3"></i>
-                    <h5 class="text-muted">No Recent Transactions</h5>
-                    <p class="mb-3 text-muted">All transactions will show here!</p>
-                </div>
-
-                @* @if (Model.Users.Any())
-                    {
-                        <div class="table-responsive-lg">
-                            <table class="table table-bordered align-middle text-center">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Full Name</th>
-                                        <th>Email Address</th>
-                                        <th>Unit Number</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var u in Model.Users)
+                @if (Model.RecentTransactions != null && Model.RecentTransactions.Any())
+                {
+                    <div class="table-responsive-lg">
+                        <table class="table table-bordered align-middle text-center">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tariff</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Reference</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var payment in Model.RecentTransactions)
+                                {
+                                    string statusBadge;
+                                    string statusColor;
+                                    if (payment.Status == "Paid")
                                     {
-                                        <tr>
-                                            <td>@u.FullName</td>
-                                            <td>@u.Email</td>
-                                            <td>
-                                                @if (u.Student != null)
-                                                {
-                                                    @u.Student.UnitNumber
-                                                }
-                                                else if (u.Staff != null)
-                                                {
-                                                    @u.Staff.UnitNumber
-                                                }
-                                                else
-                                                {
-                                                    @:N/A
-                                                }
-                                            </td>
-                                            <td>
-                                                @if (u.IsActive)
-                                                {
-                                                    <span class="badge bg-success">Active</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-danger">Inactive</span>
-                                                }
-                                            </td>
-                                            <td class="nav-item dropdown">
-                                                <button class="btn btn-sm btn-outline-dark w-100 dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    Actions
-                                                </button>
-                                                <div class="dropdown-menu dropdown-menu-end" style="width: 200px" aria-labelledby="dropdownMenu2">
-                                                    <a asp-action="Details" asp-controller="Customer" asp-route-id="@u.Id" class="dropdown-item">
-                                                        <i class="fas fa-eye me-2"></i>View User
-                                                    </a>
-                                                    <a asp-action="Update" asp-controller="Customer" asp-route-id="@u.Id" class="dropdown-item">
-                                                        <i class="fas fa-edit me-2"></i>Update User
-                                                    </a>
-                                                    <a asp-action="ChangePassword" asp-controller="Customer" asp-route-id="@u.Id" class="dropdown-item">
-                                                        <i class="fas fa-lock me-2"></i>Change Password
-                                                    </a>
-                                                    <form asp-action="Delete" asp-controller="Customer" method="post" class="m-0" onsubmit="return confirm('Are you sure you want to delete this user?')">
-                                                        <input type="hidden" name="id" value="@u.Id" />
-                                                        <button type="submit" class="dropdown-item">
-                                                            <i class="fas fa-trash me-2"></i>Delete User
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                        statusBadge = "Paid";
+                                        statusColor = "bg-success";
                                     }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="p-5 text-center border-top">
-                            <i class="fas fa-user-alt fa-3x text-muted m-3"></i>
-                            <h5 class="text-muted">No Active Users Yet</h5>
-                            <p class="mb-3 text-muted">Registered Customers will appear down here !</p>
-                        </div>
-                    } *@
+                                    else if (payment.Status == "Pending")
+                                    {
+                                        statusBadge = "Pending";
+                                        statusColor = "bg-warning text-dark";
+                                    }
+                                    else if (payment.Status == "Rejected")
+                                    {
+                                        statusBadge = "Rejected";
+                                        statusColor = "bg-danger";
+                                    }
+                                    else
+                                    {
+                                        statusBadge = payment.Status;
+                                        statusColor = "bg-secondary";
+                                    }
+
+                                    <tr>
+                                        <td>@payment.Tariff?.Name</td>
+                                        <td>R @payment.Amount.ToString("N2")</td>
+                                        <td>@payment.PaymentDate.ToString("dd MMM yyyy")</td>
+                                        <td><span class="badge @statusColor">@statusBadge</span></td>
+                                        <td><code>@payment.Reference</code></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="p-5 text-center border-top">
+                        <i class="fas fa-receipt fa-3x text-muted m-3"></i>
+                        <h5 class="text-muted">No Recent Transactions</h5>
+                        <p class="mb-3 text-muted">Your transactions will appear here.</p>
+                    </div>
+                }
             </div>
         </div>
     </div>

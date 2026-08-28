@@ -15,51 +15,79 @@
                 <p class="m-0 lead text-muted">@Model.UserName</p>
             </div>
         </div>
-        <a asp-action="ChangePassword" asp-controller="Customer" asp-route-id="" class="btn btn-sm btn-dark"><i class="fas fa-lock me-2"></i>Change Password</a>
+        <a asp-action="ChangePassword" asp-controller="Customer" asp-route-id="@Model.Id" class="btn btn-sm btn-dark">
+            <i class="fas fa-lock me-2"></i>Change Password
+        </a>
     </div>
+
+    @if (TempData["message"] != null)
+    {
+        var messageType = TempData["messageType"]?.ToString() ?? "info";
+        <div class="alert alert-@messageType alert-dismissible fade show mb-3" role="alert">
+            @TempData["message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <div class="card">
         <div class="card-header text-center border-0 bg-white pb-0">
             <h6 class="m-0 p-0 pt-2">Account Information</h6>
         </div>
         <div class="card-body">
-            <form asp-action="" method="post" class="border-top pt-3">
+            <form asp-action="Profile" method="post" class="border-top pt-3">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="IsStudent" />
+
                 <div class="mb-3">
-                    <label></label>
-                    <input class="form-control" />
+                    <label class="form-label">User Type</label>
+                    <input class="form-control" value="@(Model.IsStudent ? "Student" : "Staff")" readonly disabled />
                 </div>
+
                 <div class="row mb-3">
                     <div class="col-md">
                         <div>
                             <label asp-for="FirstName"></label>
-                            <input class="form-control" asp-for="FirstName"/>
+                            <input class="form-control" asp-for="FirstName" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md">
                         <div>
                             <label asp-for="LastName"></label>
                             <input class="form-control" asp-for="LastName" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
+
                 <div class="mb-3">
-                    <label></label>
-                    <input class="form-control" />
+                    <label asp-for="UserName"></label>
+                    <input class="form-control" asp-for="UserName" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
                 </div>
+
                 <div class="row mb-3">
                     <div class="col-md">
                         <div>
                             <label asp-for="UnitNumber"></label>
                             <input class="form-control" asp-for="UnitNumber" />
+                            <span asp-validation-for="UnitNumber" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md">
                         <div>
                             <label asp-for="VehicleNumber"></label>
-                            <input class="form-control" asp-for="VehicleNumber" />
+                            <input class="form-control" asp-for="VehicleNumber" type="number" min="0" max="10" />
+                            <span asp-validation-for="VehicleNumber" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
+
                 <button type="submit" class="btn btn-dark w-100">Update Profile</button>
+
             </form>
         </div>
     </div>

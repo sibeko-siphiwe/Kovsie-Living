@@ -13,6 +13,7 @@ namespace Kovsie_Living.Data
         public DbSet<Staff> Staff { get; set; }
         public DbSet<FinancialOfficer> FinancialOfficers { get; set; }
         public DbSet<Tariff> Tariffs { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

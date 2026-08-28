@@ -6,13 +6,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kovsie_Living.Controllers
-{ 
+{
+    [Authorize(Roles = "Administrator, Officer")]
     public class DashboardController : Controller
-    { 
+    {
         private readonly IDashboardRepository _repository;
-        public DashboardController(IDashboardRepository repository)
-        { 
+        private readonly AppDbContext _context;
+
+        public DashboardController(IDashboardRepository repository, AppDbContext context)
+        {
             _repository = repository;
+            _context = context;
         }
 
         public IActionResult Index()
@@ -25,7 +29,6 @@ namespace Kovsie_Living.Controllers
             var activeUsers = users.Count(u => u.IsActive);
             var inactiveUsers = users.Count(u => !u.IsActive);
 
-            // Calculate approval status counts for the chart
             var approvedUsers = users.Count(u =>
                 (u.Student != null && u.Student.IsApproved) ||
                 (u.Staff != null && u.Staff.IsApproved)
@@ -35,6 +38,15 @@ namespace Kovsie_Living.Controllers
                 (u.Staff != null && !u.Staff.IsApproved)
             );
 
+            // Get payment stats
+            var pendingPaymentsCount = _context.Payments.Count(p => p.Status == "Pending");
+            var recentPayments = _context.Payments
+                .Include(p => p.User)
+                .Include(p => p.Tariff)
+                .OrderByDescending(p => p.PaymentDate)
+                .Take(10)
+                .ToList();
+
             var model = new DashboardViewModel
             {
                 Users = users,
@@ -43,7 +55,9 @@ namespace Kovsie_Living.Controllers
                 ActiveUsers = activeUsers,
                 InactiveUsers = inactiveUsers,
                 ApprovedUsers = approvedUsers,
-                PendingUsers = pendingUsers
+                PendingUsers = pendingUsers,
+                PendingPaymentsCount = pendingPaymentsCount,
+                RecentPayments = recentPayments
             };
 
             return View(model);
@@ -156,6 +170,57 @@ namespace Kovsie_Living.Controllers
         {
             var tariffs = _repository.GetActiveTariffs();
             return View(tariffs);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApprovePayment(int id)
+        {
+            var payment = await _context.Payments
+                .Include(p => p.User)
+                .Include(p => p.Tariff)
+                .FirstOrDefaultAsync(p => p.PaymentId == id);
+
+            if (payment == null)
+            {
+                TempData["message"] = "Payment not found";
+                TempData["messageType"] = "danger";
+                return RedirectToAction("Index");
+            }
+
+            payment.Status = "Paid";
+            payment.PaymentDate = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            TempData["message"] = $"Payment of R{payment.Amount} from {payment.User.FullName} approved!";
+            TempData["messageType"] = "success";
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectPayment(int id)
+        {
+            var payment = await _context.Payments
+                .Include(p => p.User)
+                .Include(p => p.Tariff)
+                .FirstOrDefaultAsync(p => p.PaymentId == id);
+
+            if (payment == null)
+            {
+                TempData["message"] = "Payment not found";
+                TempData["messageType"] = "danger";
+                return RedirectToAction("Index");
+            }
+
+            payment.Status = "Rejected";
+            await _context.SaveChangesAsync();
+
+            TempData["message"] = $"Payment of R{payment.Amount} from {payment.User.FullName} rejected.";
+            TempData["messageType"] = "danger";
+
+            return RedirectToAction("Index");
         }
     }
 }
