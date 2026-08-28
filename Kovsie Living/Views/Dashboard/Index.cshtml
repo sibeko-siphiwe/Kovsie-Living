@@ -18,7 +18,7 @@
         <div class="d-flex gap-2">
             @if (User.IsInRole("Administrator"))
             {
-                <a class="btn btn-sm btn-outline-dark"><i class="fas fa-file-pdf me-2"></i>View Reports</a>
+                <a asp-action="Index" asp-controller="Report" class="btn btn-sm btn-outline-dark"><i class="fas fa-file-pdf me-2"></i>View Reports</a>
                 <a asp-action="Create" asp-controller="Customer" class="btn btn-sm btn-dark"><i class="fas fa-add me-2"></i>Create New User</a>
             }
 
@@ -72,20 +72,23 @@
 
             @if (User.IsInRole("Officer"))
             {
-                <div class="col-md">
-                    <div class="p-3 border rounded">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="mb-1">Total Revenue</h6>
-                                <h2 class="mb-1">R0.00</h2>
-                                <p class="text-muted small m-0">Total collected to date</p>
-                            </div>
-                            <div class="border border-success bg-success bg-opacity-10 p-2 rounded shadow-sm">
-                                <i class="fas fa-money-bill text-success"></i>
+                @if (User.IsInRole("Officer"))
+                {
+                    <div class="col-md">
+                        <div class="p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">Total Revenue</h6>
+                                    <h2 class="mb-1">R @Model.TotalRevenue.ToString("N2")</h2>
+                                    <p class="text-muted small m-0">Total collected to date</p>
+                                </div>
+                                <div class="border border-success bg-success bg-opacity-10 p-2 rounded shadow-sm">
+                                    <i class="fas fa-money-bill text-success"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                }
             }
 
             <div class="col-md">
@@ -238,7 +241,7 @@
     }
 
     <!-- Recent Transactions (Admin & Officer) -->
-    @if (User.IsInRole("Administrator") || User.IsInRole("Officer"))
+    @if (User.IsInRole("Officer"))
     {
         <div>
             <div class="card px-4 py-2">

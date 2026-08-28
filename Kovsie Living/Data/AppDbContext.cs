@@ -14,6 +14,7 @@ namespace Kovsie_Living.Data
         public DbSet<FinancialOfficer> FinancialOfficers { get; set; }
         public DbSet<Tariff> Tariffs { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<Report> Reports { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -47,6 +47,11 @@ namespace Kovsie_Living.Controllers
                 .Take(10)
                 .ToList();
 
+            // NEW: Calculate Total Revenue (sum of all paid payments)
+            var totalRevenue = _context.Payments
+                .Where(p => p.Status == "Paid")
+                .Sum(p => p.Amount);
+
             var model = new DashboardViewModel
             {
                 Users = users,
@@ -57,7 +62,8 @@ namespace Kovsie_Living.Controllers
                 ApprovedUsers = approvedUsers,
                 PendingUsers = pendingUsers,
                 PendingPaymentsCount = pendingPaymentsCount,
-                RecentPayments = recentPayments
+                RecentPayments = recentPayments,
+                TotalRevenue = totalRevenue  // ← NEW
             };
 
             return View(model);

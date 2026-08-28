@@ -12,5 +12,6 @@
         public int PendingUsers { get; set; }
         public int PendingPaymentsCount { get; set; }
         public IEnumerable<Payment> RecentPayments { get; set; }
+        public decimal TotalRevenue { get; set; }
     }
 }

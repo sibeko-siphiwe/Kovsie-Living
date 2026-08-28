@@ -179,6 +179,56 @@ namespace Kovsie_Living.Migrations
                     b.ToTable("Payments");
                 });
 
+            modelBuilder.Entity("Kovsie_Living.Models.Report", b =>
+                {
+                    b.Property<int>("ReportId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReportId"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GeneratedByUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("GeneratedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReportType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("ReportId");
+
+                    b.HasIndex("GeneratedByUserId");
+
+                    b.ToTable("Reports");
+                });
+
             modelBuilder.Entity("Kovsie_Living.Models.Staff", b =>
                 {
                     b.Property<int>("Id")
@@ -432,6 +482,17 @@ namespace Kovsie_Living.Migrations
                     b.Navigation("Tariff");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Kovsie_Living.Models.Report", b =>
+                {
+                    b.HasOne("Kovsie_Living.Models.ApplicationUser", "GeneratedBy")
+                        .WithMany()
+                        .HasForeignKey("GeneratedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GeneratedBy");
                 });
 
             modelBuilder.Entity("Kovsie_Living.Models.Staff", b =>

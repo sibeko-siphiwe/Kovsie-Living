@@ -25,7 +25,7 @@ namespace Kovsie_Living.Models
 
         [Required]
         [StringLength(20)]
-        public string Status { get; set; } = "Pending"; // Paid, Pending, Failed, Cancelled
+        public string Status { get; set; } = "Pending";
 
         [Required]
         public DateTime PaymentDate { get; set; } = DateTime.UtcNow;

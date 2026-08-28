@@ -1,0 +1,101 @@
+﻿@model GenerateReportViewModel
+@{
+    ViewData["Title"] = "Generate Report";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid">
+
+    <div class="mb-4">
+        <h2 class="heading display-6">Generate Report</h2>
+        <p class="m-0 text-muted lead">Create a new report for estate payments and customers</p>
+    </div>
+
+    @if (TempData["message"] != null)
+    {
+        var messageType = TempData["messageType"]?.ToString() ?? "info";
+        <div class="alert alert-@messageType alert-dismissible fade show mb-3" role="alert">
+            @TempData["message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+
+                    <form asp-action="Generate" method="post">
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="ReportType" class="form-label fw-semibold"></label>
+                            <select asp-for="ReportType" class="form-select">
+                                <option value="">Select Report Type</option>
+                                <option value="Payments">Payments Report</option>
+                                <option value="Customers">Customers Report</option>
+                                <option value="Revenue">Revenue Report</option>
+                            </select>
+                            <span asp-validation-for="ReportType" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="StartDate" class="form-label fw-semibold"></label>
+                                <input asp-for="StartDate" class="form-control" type="date" />
+                                <span asp-validation-for="StartDate" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="EndDate" class="form-label fw-semibold"></label>
+                                <input asp-for="EndDate" class="form-control" type="date" />
+                                <span asp-validation-for="EndDate" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-semibold"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Optional description"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-dark w-100">
+                            <i class="fas fa-file-pdf me-2"></i>Generate Report
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="m-0 fw-semibold">Report Types</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-3 mb-3">
+                        <div class="p-3 border rounded text-center flex-grow-1">
+                            <i class="fas fa-credit-card fa-2x text-success mb-2"></i>
+                            <h6 class="mb-0">Payments</h6>
+                            <p class="text-muted small m-0">Payment history and status</p>
+                        </div>
+                        <div class="p-3 border rounded text-center flex-grow-1">
+                            <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                            <h6 class="mb-0">Customers</h6>
+                            <p class="text-muted small m-0">Customer registration data</p>
+                        </div>
+                        <div class="p-3 border rounded text-center flex-grow-1">
+                            <i class="fas fa-money-bill fa-2x text-warning mb-2"></i>
+                            <h6 class="mb-0">Revenue</h6>
+                            <p class="text-muted small m-0">Financial summary</p>
+                        </div>
+                    </div>
+                    <p class="text-muted small">Select a report type, choose a date range, and click generate. Reports will be available for review by administrators.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
