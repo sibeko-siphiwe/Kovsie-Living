@@ -205,6 +205,9 @@ namespace Kovsie_Living.Migrations
                     b.Property<DateTime>("GeneratedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ReportDataJson")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ReportType")
                         .IsRequired()
                         .HasMaxLength(50)

@@ -32,10 +32,13 @@ namespace Kovsie_Living.Models
         public string Description { get; set; }
 
         [Required]
-        public string FilePath { get; set; } // Path to saved PDF/Excel
+        public string FilePath { get; set; } // Path to saved PDF
 
         [Required]
         public string Status { get; set; } = "Generated"; // Generated, Viewed, Archived
+
+        // Store report data as JSON - make nullable
+        public string? ReportDataJson { get; set; }
 
         // Navigation Properties
         [ForeignKey("GeneratedByUserId")]

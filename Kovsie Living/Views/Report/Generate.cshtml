@@ -8,7 +8,7 @@
 
     <div class="mb-4">
         <h2 class="heading display-6">Generate Report</h2>
-        <p class="m-0 text-muted lead">Create a new report for estate payments and customers</p>
+        <p class="m-0 text-muted lead">Create detailed reports for estate payments and customers</p>
     </div>
 
     @if (TempData["message"] != null)
@@ -21,7 +21,7 @@
     }
 
     <div class="row">
-        <div class="col-lg-6">
+        <div class="col-lg-7">
             <div class="card shadow-sm">
                 <div class="card-body p-4">
 
@@ -55,7 +55,7 @@
 
                         <div class="mb-3">
                             <label asp-for="Description" class="form-label fw-semibold"></label>
-                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Optional description"></textarea>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Optional description for this report"></textarea>
                             <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
 
@@ -69,7 +69,7 @@
             </div>
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-lg-5">
             <div class="card shadow-sm">
                 <div class="card-header bg-white border-bottom">
                     <h6 class="m-0 fw-semibold">Report Types</h6>
@@ -92,7 +92,18 @@
                             <p class="text-muted small m-0">Financial summary</p>
                         </div>
                     </div>
-                    <p class="text-muted small">Select a report type, choose a date range, and click generate. Reports will be available for review by administrators.</p>
+                    <p class="text-muted small">Select a report type, choose a date range, and click generate. The report will be saved and available for download as PDF.</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="m-0 fw-semibold">My Recent Reports</h6>
+                </div>
+                <div class="card-body">
+                    <a asp-action="MyReports" class="btn btn-outline-dark w-100">
+                        <i class="fas fa-history me-2"></i>View My Reports
+                    </a>
                 </div>
             </div>
         </div>

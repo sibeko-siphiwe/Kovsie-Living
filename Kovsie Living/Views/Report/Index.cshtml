@@ -22,6 +22,54 @@
         </div>
     }
 
+    <!-- Filters -->
+    <div class="mb-4">
+        <div class="p-3 bg-white shadow-sm rounded">
+            <form method="get" asp-action="Index" asp-controller="Report">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label fw-semibold small">Filter by Officer</label>
+                        <select name="officerFilter" class="form-select">
+                            <option value="">All Officers</option>
+                            @if (ViewBag.Officers != null)
+                            {
+                                @foreach (var officer in ViewBag.Officers)
+                                {
+                                    <option value="@officer.Id" selected="@(ViewBag.OfficerFilter == officer.Id)">
+                                        @officer.FullName
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small">Filter by Type</label>
+                        <select name="typeFilter" class="form-select">
+                            <option value="">All Types</option>
+                            <option value="Payments" selected="@(ViewBag.TypeFilter == "Payments")">Payments</option>
+                            <option value="Customers" selected="@(ViewBag.TypeFilter == "Customers")">Customers</option>
+                            <option value="Revenue" selected="@(ViewBag.TypeFilter == "Revenue")">Revenue</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-dark w-100">
+                            <i class="fas fa-filter me-2"></i>Apply Filter
+                        </button>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(ViewBag.OfficerFilter) || !string.IsNullOrEmpty(ViewBag.TypeFilter))
+                {
+                    <div class="mt-2">
+                        <a asp-action="Index" asp-controller="Report" class="text-muted small">
+                            <i class="fas fa-times-circle me-1"></i>Clear all filters
+                        </a>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+
     <div class="card px-4 py-2">
         <div class="card-header text-center border-bottom bg-white">
             <h6 class="m-0 pb-2">Generated Reports</h6>
@@ -48,7 +96,11 @@
                             {
                                 <tr>
                                     <td>@report.Title</td>
-                                    <td><span class="badge bg-info">@report.ReportType</span></td>
+                                    <td>
+                                        <span class="badge @(report.ReportType == "Payments" ? "bg-success" : (report.ReportType == "Customers" ? "bg-primary" : "bg-warning"))">
+                                            @report.ReportType
+                                        </span>
+                                    </td>
                                     <td>@report.GeneratedBy</td>
                                     <td>@report.StartDate.ToString("dd MMM yyyy") - @report.EndDate.ToString("dd MMM yyyy")</td>
                                     <td>@report.GeneratedDate.ToString("dd MMM yyyy, HH:mm")</td>
@@ -63,11 +115,14 @@
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
                                             <a asp-action="Details" asp-route-id="@report.ReportId" class="dropdown-item">
-                                                <i class="fas fa-eye me-2"></i>View
+                                                <i class="fas fa-eye me-2"></i>View Details
                                             </a>
-                                            <a href="@report.FilePath" class="dropdown-item" target="_blank">
-                                                <i class="fas fa-download me-2"></i>Download
-                                            </a>
+                                            @if (!string.IsNullOrEmpty(report.FilePath))
+                                            {
+                                                <a asp-action="DownloadPdf" asp-route-id="@report.ReportId" class="dropdown-item">
+                                                    <i class="fas fa-download me-2"></i>Download PDF
+                                                </a>
+                                            }
                                             <form asp-action="Delete" method="post" class="m-0" onsubmit="return confirm('Delete this report?')">
                                                 <input type="hidden" name="id" value="@report.ReportId" />
                                                 <button type="submit" class="dropdown-item text-danger">

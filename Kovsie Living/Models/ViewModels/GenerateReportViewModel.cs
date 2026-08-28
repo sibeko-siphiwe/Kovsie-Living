@@ -7,12 +7,12 @@ namespace Kovsie_Living.Models.ViewModels
     {
         [Required(ErrorMessage = "Report type is required")]
         [DisplayName("Report Type")]
-        public string ReportType { get; set; } // "Payments", "Customers", "Revenue"
+        public string ReportType { get; set; }
 
         [Required(ErrorMessage = "Start date is required")]
         [DisplayName("Start Date")]
         [DataType(DataType.Date)]
-        public DateTime StartDate { get; set; } = DateTime.UtcNow.AddMonths(-1);
+        public DateTime StartDate { get; set; } = DateTime.UtcNow.AddYears(-1); 
 
         [Required(ErrorMessage = "End date is required")]
         [DisplayName("End Date")]
