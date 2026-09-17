@@ -32,5 +32,11 @@ namespace Kovsie_Living.Models.ViewModels
         public int VehicleNumber { get; set; }
 
         public bool IsStudent { get; set; }
+
+        [DisplayName("Profile Picture")]
+        public IFormFile ProfilePictureFile { get; set; }
+
+        public byte[] CurrentProfilePicture { get; set; }
+        public string CurrentProfilePictureContentType { get; set; }
     }
 }

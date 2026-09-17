@@ -1,0 +1,31 @@
+﻿@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="container">
+    <div class="py-5 d-flex justify-content-center align-items-center">
+        <div class="frmLogin mt-5 text-center">
+
+            <i class="fas fa-triangle-exclamation text-muted mb-4" style="font-size: 3rem;"></i>
+
+            <h2 class="heading mb-2">Something went wrong</h2>
+            <p class="text-muted mb-4">
+                We're sorry for the inconvenience. Please try again or contact support if the issue persists.
+            </p>
+
+            @if (ViewData["RequestId"] != null)
+            {
+                <p class="text-muted small mb-4">
+                    Reference: <code>@ViewData["RequestId"]</code>
+                </p>
+            }
+
+            <div class="d-flex gap-2 justify-content-center">
+                <a asp-action="Index" asp-controller="Home" class="btn btn-sm btn-dark-soft">
+                    <i class="fas fa-home me-1"></i>Home
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>

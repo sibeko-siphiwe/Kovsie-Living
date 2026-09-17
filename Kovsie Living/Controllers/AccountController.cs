@@ -174,5 +174,19 @@ namespace Kovsie_Living.Controllers
         {
             return View();
         }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> ProfilePicture(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null || user.ProfilePicture == null || user.ProfilePicture.Length == 0)
+            {
+                return NotFound();
+            }
+
+            return File(user.ProfilePicture, user.ProfilePictureContentType ?? "image/jpeg");
+        }
     }
 }

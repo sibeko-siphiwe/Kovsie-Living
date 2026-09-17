@@ -4,33 +4,52 @@
     Layout = "_DashboardLayout";
 }
 
-<div class="container-fluid">
+<div class="container-fluid p-0">
 
-    <div class="mb-4">
-        <h2 class="heading display-6">Edit Tariff</h2>
-        <p class="m-0 text-muted lead">Update tariff details</p>
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4">
+        <div>
+            <h2 class="heading mb-1">Edit Tariff</h2>
+            <p class="text-muted mb-0">Update tariff details.</p>
+        </div>
+        <a asp-action="Tariffs" asp-controller="Dashboard" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back
+        </a>
     </div>
 
-    <form asp-action="Edit" method="post">
+    <div class="card stat-card">
+        <div class="card-body">
 
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <form asp-action="Edit" method="post">
 
-        <input type="hidden" asp-for="TariffId" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-        <div class="mb-3">
-            <label asp-for="Name" class="form-label"></label>
-            <input asp-for="Name" class="form-control" placeholder="e.g Electricity" />
-            <span asp-validation-for="Name" class="text-danger"></span>
+                <input type="hidden" asp-for="TariffId" />
+
+                <div class="row g-3">
+
+                    <div class="col-md-12">
+                        <label asp-for="Name" class="form-label small text-muted text-uppercase"></label>
+                        <input asp-for="Name" class="form-control form-control-sm" placeholder="e.g Electricity" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label asp-for="Amount" class="form-label small text-muted text-uppercase"></label>
+                        <input asp-for="Amount" class="form-control form-control-sm" placeholder="e.g 1500.00" />
+                        <span asp-validation-for="Amount" class="text-danger small"></span>
+                    </div>
+
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-sm btn-dark-soft">
+                        <i class="fas fa-check me-1"></i>Update Tariff
+                    </button>
+                </div>
+
+            </form>
+
         </div>
-
-        <div class="mb-3">
-            <label asp-for="Amount" class="form-label"></label>
-            <input asp-for="Amount" class="form-control" placeholder="e.g 1500.00" />
-            <span asp-validation-for="Amount" class="text-danger"></span>
-        </div>
-
-        <button type="submit" class="btn btn-dark w-100">Update Tariff</button>
-
-    </form>
+    </div>
 
 </div>

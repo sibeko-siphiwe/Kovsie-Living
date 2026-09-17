@@ -1,153 +1,139 @@
 ﻿@model CustomerDashboardViewModel
 @{
-    ViewData["Title"] = "Customer Dashboard";
+    ViewData["Title"] = "Dashboard";
     Layout = "_DashboardLayout";
 }
 
-<div class="container-fluid">
+<div class="container-fluid p-0">
 
-    <div class="bg-dark text-light shadow rounded w-100 p-5 mt-3 mb-4">
-        <div class="d-flex justify-content-between align-items-end">
-            <div>
-                <p class="m-0 lead">Welcome Back,</p>
-                <h2 class="m-0 heading">@Model.User.FirstName @Model.User.LastName</h2>
-                <p class="m-0 text-secondary">
-                    @(Model.IsStudent ? "Student" : "Staff")
-                    @if (!string.IsNullOrEmpty(Model.UnitNumber))
-                    {
-                        <span class="text-secondary">· Unit @Model.UnitNumber</span>
-                    }
-                </p>
+    <div class="card stat-card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <p class="text-muted small text-uppercase mb-1">Welcome Back</p>
+                    <h2 class="heading mb-1">@Model.User.FirstName @Model.User.LastName</h2>
+                    <p class="text-muted small mb-0">
+                        @(Model.IsStudent ? "Student" : "Staff")
+                        @if (!string.IsNullOrEmpty(Model.UnitNumber))
+                        {
+                            <span> · Unit @Model.UnitNumber</span>
+                        }
+                    </p>
+                </div>
+                <a asp-action="MakePayment" asp-controller="Payment" class="btn btn-sm btn-dark-soft">
+                    <i class="fas fa-credit-card me-1"></i>Make Payment
+                </a>
             </div>
-            <a asp-action="MakePayment" asp-controller="Payment" class="btn btn-sm btn-outline-light">
-                <i class="fas fa-hand-holding-dollar me-2"></i>Make Payment
-            </a>
         </div>
     </div>
 
     @if (TempData["message"] != null)
     {
         var messageType = TempData["messageType"]?.ToString() ?? "info";
-        <div class="alert alert-@messageType alert-dismissible fade show mb-3" role="alert">
+        <div class="alert alert-@messageType alert-dismissible fade show mb-4" role="alert">
             @TempData["message"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <!-- Statistics Cards -->
-    <div class="row gap-2 g-2 mb-4">
+    <div class="row g-2 mb-4">
         <div class="col-md">
-            <div class="p-3 border rounded bg-white">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <h6 class="mb-1">Amount Paid</h6>
-                        <h2 class="mb-1">R @Model.TotalPaid.ToString("N2")</h2>
-                        <p class="text-muted small m-0">Total amount paid</p>
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="text-muted small text-uppercase">Amount Paid</span>
+                        <i class="fas fa-money-bill text-muted"></i>
                     </div>
-                    <div class="border border-success bg-success bg-opacity-10 p-2 rounded shadow-sm">
-                        <i class="fas fa-money-bill text-success"></i>
-                    </div>
+                    <h3 class="heading mb-1">R @Model.TotalPaid.ToString("N2")</h3>
+                    <p class="text-muted small mb-0">Total amount paid</p>
                 </div>
             </div>
         </div>
+
         <div class="col-md">
-            <div class="p-3 border rounded bg-white">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <h6 class="mb-1">Pending Payments</h6>
-                        <h2 class="mb-1">R @Model.PendingPayments.ToString("N2")</h2>
-                        <p class="text-muted small m-0">Waiting for approval</p>
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="text-muted small text-uppercase">Pending Payments</span>
+                        <i class="fas fa-clock text-muted"></i>
                     </div>
-                    <div class="border border-warning bg-warning bg-opacity-10 p-2 rounded shadow-sm">
-                        <i class="fas fa-clock-four text-warning"></i>
-                    </div>
+                    <h3 class="heading mb-1">R @Model.PendingPayments.ToString("N2")</h3>
+                    <p class="text-muted small mb-0">Waiting for approval</p>
                 </div>
             </div>
         </div>
+
         <div class="col-md">
-            <div class="p-3 border rounded bg-white">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <h6 class="mb-1">Total Transactions</h6>
-                        <h2 class="mb-1">@Model.TransactionCount</h2>
-                        <p class="text-muted small m-0">Transactions performed</p>
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="text-muted small text-uppercase">Transactions</span>
+                        <i class="fas fa-receipt text-muted"></i>
                     </div>
-                    <div class="border border-primary bg-primary bg-opacity-10 p-2 rounded shadow-sm">
-                        <i class="fas fa-file-alt text-primary"></i>
-                    </div>
+                    <h3 class="heading mb-1">@Model.TransactionCount</h3>
+                    <p class="text-muted small mb-0">Total transactions</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Recent Transactions -->
-    <div>
-        <div class="card px-4">
-            <div class="card-header text-center border-bottom bg-white pb-3">
-                <h6 class="m-0 p-0 pt-2">Recent Transactions</h6>
-            </div>
-            <div class="card-body">
-                @if (Model.RecentTransactions != null && Model.RecentTransactions.Any())
-                {
-                    <div class="table-responsive-lg">
-                        <table class="table table-bordered align-middle text-center">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Tariff</th>
-                                    <th>Amount</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Reference</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var payment in Model.RecentTransactions)
-                                {
-                                    string statusBadge;
-                                    string statusColor;
-                                    if (payment.Status == "Paid")
-                                    {
-                                        statusBadge = "Paid";
-                                        statusColor = "bg-success";
-                                    }
-                                    else if (payment.Status == "Pending")
-                                    {
-                                        statusBadge = "Pending";
-                                        statusColor = "bg-warning text-dark";
-                                    }
-                                    else if (payment.Status == "Rejected")
-                                    {
-                                        statusBadge = "Rejected";
-                                        statusColor = "bg-danger";
-                                    }
-                                    else
-                                    {
-                                        statusBadge = payment.Status;
-                                        statusColor = "bg-secondary";
-                                    }
-
-                                    <tr>
-                                        <td>@payment.Tariff?.Name</td>
-                                        <td>R @payment.Amount.ToString("N2")</td>
-                                        <td>@payment.PaymentDate.ToString("dd MMM yyyy")</td>
-                                        <td><span class="badge @statusColor">@statusBadge</span></td>
-                                        <td><code>@payment.Reference</code></td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-                else
-                {
-                    <div class="p-5 text-center">
-                        <i class="fas fa-receipt fa-3x text-muted m-3"></i>
-                        <h5 class="text-muted">No Recent Transactions</h5>
-                        <p class="mb-3 text-muted">Your transactions will appear here.</p>
-                    </div>
-                }
+    <div class="card stat-card">
+        <div class="card-body pb-0">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="heading mb-1">Recent Transactions</h6>
+                    <p class="text-muted small mb-0">Your latest payments</p>
+                </div>
+                <a asp-action="History" asp-controller="Payment" class="btn btn-sm btn-outline-secondary">
+                    View All
+                </a>
             </div>
         </div>
+
+        @if (Model.RecentTransactions != null && Model.RecentTransactions.Any())
+        {
+            <table class="table table-clean mb-0 w-100">
+                <thead>
+                    <tr>
+                        <th>Tariff</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Reference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var payment in Model.RecentTransactions)
+                    {
+                        string badgeClass = payment.Status switch
+                        {
+                            "Paid" => "badge-soft-green",
+                            "Pending" => "badge-soft-yellow",
+                            "Rejected" => "badge-soft-red",
+                            _ => "badge-soft-gray"
+                        };
+
+                        <tr>
+                            <td class="fw-semibold">@payment.Tariff?.Name</td>
+                            <td class="fw-semibold">R @payment.Amount.ToString("N2")</td>
+                            <td class="text-muted">@payment.PaymentDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <span class="@badgeClass">@payment.Status</span>
+                            </td>
+                            <td><code>@payment.Reference</code></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-receipt fa-2x text-muted mb-3"></i>
+                <h6 class="heading mb-1">No Recent Transactions</h6>
+                <p class="text-muted small mb-0">Your transactions will appear here.</p>
+            </div>
+        }
     </div>
 
 </div>

@@ -4,64 +4,78 @@
     Layout = "_DashboardLayout";
 }
 
-<div class="container-fluid">
+<div class="container-fluid p-0">
 
-    <div class="mb-4">
-        <h2 class="heading display-6">Generate Report</h2>
-        <p class="m-0 text-muted lead">Create detailed reports for estate payments and customers</p>
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4">
+        <div>
+            <h2 class="heading mb-1">Generate Report</h2>
+            <p class="text-muted mb-0">Create detailed reports for estate payments and customers.</p>
+        </div>
+        <a asp-action="MyReports" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-history me-1"></i>My Reports
+        </a>
     </div>
 
     @if (TempData["message"] != null)
     {
         var messageType = TempData["messageType"]?.ToString() ?? "info";
-        <div class="alert alert-@messageType alert-dismissible fade show mb-3" role="alert">
+        <div class="alert alert-@messageType alert-dismissible fade show mb-4" role="alert">
             @TempData["message"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="row">
+    <div class="row g-2">
+
         <div class="col-lg-7">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
+            <div class="card stat-card h-100">
+                <div class="card-body pb-0">
+                    <h6 class="heading mb-3">Report Details</h6>
+                </div>
+                <div class="card-body pt-0">
 
                     <form asp-action="Generate" method="post">
 
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                        <div class="mb-3">
-                            <label asp-for="ReportType" class="form-label fw-semibold"></label>
-                            <select asp-for="ReportType" class="form-select">
-                                <option value="">Select Report Type</option>
-                                <option value="Payments">Payments Report</option>
-                                <option value="Customers">Customers Report</option>
-                                <option value="Revenue">Revenue Report</option>
-                            </select>
-                            <span asp-validation-for="ReportType" class="text-danger small"></span>
-                        </div>
+                        <div class="row g-3">
 
-                        <div class="row g-3 mb-3">
+                            <div class="col-md-12">
+                                <label asp-for="ReportType" class="form-label small text-muted text-uppercase"></label>
+                                <select asp-for="ReportType" class="form-select form-select-sm">
+                                    <option value="">Select Report Type</option>
+                                    <option value="Payments">Payments Report</option>
+                                    <option value="Customers">Customers Report</option>
+                                    <option value="Revenue">Revenue Report</option>
+                                </select>
+                                <span asp-validation-for="ReportType" class="text-danger small"></span>
+                            </div>
+
                             <div class="col-md-6">
-                                <label asp-for="StartDate" class="form-label fw-semibold"></label>
-                                <input asp-for="StartDate" class="form-control" type="date" />
+                                <label asp-for="StartDate" class="form-label small text-muted text-uppercase"></label>
+                                <input asp-for="StartDate" class="form-control form-control-sm" type="date" />
                                 <span asp-validation-for="StartDate" class="text-danger small"></span>
                             </div>
+
                             <div class="col-md-6">
-                                <label asp-for="EndDate" class="form-label fw-semibold"></label>
-                                <input asp-for="EndDate" class="form-control" type="date" />
+                                <label asp-for="EndDate" class="form-label small text-muted text-uppercase"></label>
+                                <input asp-for="EndDate" class="form-control form-control-sm" type="date" />
                                 <span asp-validation-for="EndDate" class="text-danger small"></span>
                             </div>
+
+                            <div class="col-md-12">
+                                <label asp-for="Description" class="form-label small text-muted text-uppercase"></label>
+                                <textarea asp-for="Description" class="form-control form-control-sm" rows="3" placeholder="Optional description for this report"></textarea>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                            </div>
+
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Description" class="form-label fw-semibold"></label>
-                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Optional description for this report"></textarea>
-                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-sm btn-dark-soft">
+                                <i class="fas fa-file-pdf me-1"></i>Generate Report
+                            </button>
                         </div>
-
-                        <button type="submit" class="btn btn-dark w-100">
-                            <i class="fas fa-file-pdf me-2"></i>Generate Report
-                        </button>
 
                     </form>
 
@@ -70,43 +84,48 @@
         </div>
 
         <div class="col-lg-5">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white border-bottom">
-                    <h6 class="m-0 fw-semibold">Report Types</h6>
+            <div class="card stat-card h-100">
+                <div class="card-body pb-0">
+                    <h6 class="heading mb-3">Report Types</h6>
                 </div>
-                <div class="card-body">
-                    <div class="d-flex gap-3 mb-3">
-                        <div class="p-3 border rounded text-center flex-grow-1">
-                            <i class="fas fa-credit-card fa-2x text-success mb-2"></i>
-                            <h6 class="mb-0">Payments</h6>
-                            <p class="text-muted small m-0">Payment history and status</p>
-                        </div>
-                        <div class="p-3 border rounded text-center flex-grow-1">
-                            <i class="fas fa-users fa-2x text-primary mb-2"></i>
-                            <h6 class="mb-0">Customers</h6>
-                            <p class="text-muted small m-0">Customer registration data</p>
-                        </div>
-                        <div class="p-3 border rounded text-center flex-grow-1">
-                            <i class="fas fa-money-bill fa-2x text-warning mb-2"></i>
-                            <h6 class="mb-0">Revenue</h6>
-                            <p class="text-muted small m-0">Financial summary</p>
-                        </div>
-                    </div>
-                    <p class="text-muted small">Select a report type, choose a date range, and click generate. The report will be saved and available for download as PDF.</p>
-                </div>
-            </div>
+                <div class="card-body pt-0">
 
-            <div class="card shadow-sm mt-3">
-                <div class="card-header bg-white border-bottom">
-                    <h6 class="m-0 fw-semibold">My Recent Reports</h6>
-                </div>
-                <div class="card-body">
-                    <a asp-action="MyReports" class="btn btn-outline-dark w-100">
-                        <i class="fas fa-history me-2"></i>View My Reports
-                    </a>
+                    <div class="d-flex flex-column gap-2 mb-3">
+
+                        <div class="d-flex align-items-start gap-3 p-3 border rounded">
+                            <i class="fas fa-credit-card text-muted mt-1"></i>
+                            <div>
+                                <h6 class="mb-0 small fw-semibold">Payments</h6>
+                                <p class="text-muted small mb-0">Payment history and status</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-start gap-3 p-3 border rounded">
+                            <i class="fas fa-users text-muted mt-1"></i>
+                            <div>
+                                <h6 class="mb-0 small fw-semibold">Customers</h6>
+                                <p class="text-muted small mb-0">Customer registration data</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-start gap-3 p-3 border rounded">
+                            <i class="fas fa-money-bill text-muted mt-1"></i>
+                            <div>
+                                <h6 class="mb-0 small fw-semibold">Revenue</h6>
+                                <p class="text-muted small mb-0">Financial summary</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <p class="text-muted small mb-0">
+                        Select a report type, choose a date range, and click generate. The report will be saved and available for download as PDF.
+                    </p>
+
                 </div>
             </div>
         </div>
+
     </div>
 
 </div>

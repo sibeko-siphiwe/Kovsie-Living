@@ -3,291 +3,263 @@
     ViewData["Title"] = "Customer Profile";
     Layout = "_DashboardLayout";
 
-    // Determine user type
     var isStudent = Model.Student != null;
     var isStaff = Model.Staff != null;
     var userType = isStudent ? "Student" : (isStaff ? "Staff" : "Unknown");
+    var unitNumber = isStudent ? Model.Student?.UnitNumber : (isStaff ? Model.Staff?.UnitNumber : "N/A");
+    var vehicleCount = isStudent ? Model.Student?.VehicleNumber ?? 0 : (isStaff ? Model.Staff?.VehicleNumber ?? 0 : 0);
+    var isApproved = isStudent ? (Model.Student?.IsApproved ?? false) : (isStaff ? (Model.Staff?.IsApproved ?? false) : true);
 
-    // Get unit number
-    var unitNumber = isStudent ? Model.Student?.UnitNumber :
-                     (isStaff ? Model.Staff?.UnitNumber : "N/A");
-
-    // Get vehicle count
-    var vehicleCount = isStudent ? Model.Student?.VehicleNumber ?? 0 :
-                       (isStaff ? Model.Staff?.VehicleNumber ?? 0 : 0);
-
-    // Get approval status
-    var isApproved = isStudent ? (Model.Student?.IsApproved ?? false) :
-                     (isStaff ? (Model.Staff?.IsApproved ?? false) : true);
-
-    // Combined status
     string statusBadge;
-    string statusColor;
     if (!Model.IsActive)
     {
-        statusBadge = "Inactive";
-        statusColor = "bg-danger";
+        statusBadge = "badge-soft-red";
     }
     else if (!isApproved)
     {
-        statusBadge = "Pending";
-        statusColor = "bg-warning text-dark";
+        statusBadge = "badge-soft-yellow";
     }
     else
     {
-        statusBadge = "Active";
-        statusColor = "bg-success";
+        statusBadge = "badge-soft-green";
     }
 }
 
-<div class="container-fluid">
+<div class="container-fluid p-0">
 
-    <!-- ========================================== -->
-    <!-- PAGE HEADER                                -->
-    <!-- ========================================== -->
-    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4">
-        <div>
-            <h2 class="heading display-6 m-0">Customer Profile</h2>
-            <p class="m-0 lead text-muted">@Model.FullName · @Model.UserName</p>
-        </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <a asp-action="Customers" asp-controller="Dashboard" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Customers
-            </a>
-            <a asp-action="Update" asp-controller="Customer" asp-route-id="@Model.Id" class="btn btn-outline-dark">
-                <i class="fas fa-edit me-2"></i>Edit
-            </a>
-            <a asp-action="ChangePassword" asp-controller="Customer" asp-route-id="@Model.Id" class="btn btn-outline-dark">
-                <i class="fas fa-lock me-2"></i>Change Password
-            </a>
-        </div>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- PROFILE SUMMARY CARD                      -->
-    <!-- ========================================== -->
-    <div class="card shadow-sm mb-4">
+    <div class="card stat-card mb-4">
         <div class="card-body">
-            <div class="row g-3 text-center">
-                <div class="col-6 col-md-2">
-                    <div class="p-3 bg-light rounded-3">
-                        <div class="text-muted small text-uppercase">Username</div>
-                        <div class="fw-bold">@Model.UserName</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-2">
-                    <div class="p-3 bg-light rounded-3">
-                        <div class="text-muted small text-uppercase">User Type</div>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-3">
+
+                        @if (Model.ProfilePicture != null && Model.ProfilePicture.Length > 0)
+                        {
+                            <img src="@Url.Action("ProfilePicture", "Account", new { id = Model.Id })"
+                                 alt="Profile"
+                                 class="user-avatar"
+                                 style="width: 56px; height: 56px;" />
+                        }
+                        else
+                        {
+                            <div class="user-avatar" style="width: 56px; height: 56px; font-size: 1.1rem;">
+                                @Model.FirstName[0]@Model.LastName[0]
+                            </div>
+                        }
+
                         <div>
-                            @if (isStudent)
-                            {
-                                <span class="badge bg-primary">Student</span>
-                            }
-                            else if (isStaff)
-                            {
-                                <span class="badge bg-info text-dark">Staff</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">Unknown</span>
-                            }
+                            <h4 class="heading mb-1">@Model.FullName</h4>
+                            <p class="text-muted small mb-0">@Model.UserName</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="heading mb-1">@Model.FullName</h4>
+                        <div class="d-flex align-items-center gap-2 text-muted small">
+                            <span>@Model.UserName</span>
+                            <span>•</span>
+                            <span>@userType</span>
+                            <span>•</span>
+                            <span class="@statusBadge">
+                                @(Model.IsActive ? (isApproved ? "Active" : "Pending") : "Inactive")
+                            </span>
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
-                    <div class="p-3 bg-light rounded-3">
-                        <div class="text-muted small text-uppercase">Status</div>
-                        <div>
-                            <span class="badge @statusColor">@statusBadge</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-2">
-                    <div class="p-3 bg-light rounded-3">
-                        <div class="text-muted small text-uppercase">Unit Number</div>
-                        <div class="fw-bold">@unitNumber</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-2">
-                    <div class="p-3 bg-light rounded-3">
-                        <div class="text-muted small text-uppercase">Vehicles</div>
-                        <div class="fw-bold">@vehicleCount</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-2">
-                    <div class="p-3 bg-light rounded-3">
-                        <div class="text-muted small text-uppercase">Joined</div>
-                        <div class="fw-bold">@Model.CreatedAt.ToString("dd MMM yyyy")</div>
-                    </div>
+                <div class="d-flex gap-2">
+                    <a asp-action="Customers" asp-controller="Dashboard" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back
+                    </a>
+                    <a asp-action="Update" asp-controller="Customer" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-pen me-1"></i>Edit
+                    </a>
+                    <a asp-action="ChangePassword" asp-controller="Customer" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-key me-1"></i>Password
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- PERSONAL INFORMATION                      -->
-    <!-- ========================================== -->
-    <div class="row g-4">
-        <div class="col-lg-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white border-bottom">
-                    <h6 class="m-0 fw-semibold">
-                        <i class="fas fa-user me-2"></i>Personal Information
-                    </h6>
-                </div>
+    <div class="row g-2 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card h-100">
                 <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <div class="text-muted small text-uppercase">First Name</div>
-                            <div class="fw-semibold">@Model.FirstName</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="text-muted small text-uppercase">Last Name</div>
-                            <div class="fw-semibold">@Model.LastName</div>
-                        </div>
-                        <div class="col-12">
-                            <div class="text-muted small text-uppercase">Email</div>
-                            <div class="fw-semibold">@Model.Email</div>
-                        </div>
-                        <div class="col-12">
-                            <div class="text-muted small text-uppercase">Phone Number</div>
-                            <div class="fw-semibold">@(string.IsNullOrEmpty(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)</div>
-                        </div>
-                        <div class="col-12">
-                            <div class="text-muted small text-uppercase">Last Login</div>
-                            <div class="fw-semibold">@(Model.LastLoginAt.HasValue? Model.LastLoginAt.Value.ToString("dd MMM yyyy, HH:mm") : "Never")</div>
-                        </div>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="text-muted small text-uppercase">Username</span>
+                        <i class="fas fa-id-badge text-muted"></i>
                     </div>
+                    <h6 class="heading mb-0">@Model.UserName</h6>
                 </div>
             </div>
         </div>
-
-        <!-- ========================================== -->
-        <!-- ESTATE INFORMATION                        -->
-        <!-- ========================================== -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white border-bottom">
-                    <h6 class="m-0 fw-semibold">
-                        <i class="fas fa-home me-2"></i>Estate Information
-                    </h6>
-                </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card h-100">
                 <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <div class="text-muted small text-uppercase">Unit Number</div>
-                            <div class="fw-semibold">@unitNumber</div>
-                        </div>
-                        <div class="col-12">
-                            <div class="text-muted small text-uppercase">Vehicle Count</div>
-                            <div class="fw-semibold">@vehicleCount</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="text-muted small text-uppercase">Account Status</div>
-                            <div>
-                                <span class="badge @(Model.IsActive ? "bg-success" : "bg-danger")">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="text-muted small text-uppercase">Unit Number</span>
+                        <i class="fas fa-home text-muted"></i>
+                    </div>
+                    <h6 class="heading mb-0">@unitNumber</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="text-muted small text-uppercase">Vehicles</span>
+                        <i class="fas fa-car text-muted"></i>
+                    </div>
+                    <h6 class="heading mb-0">@vehicleCount</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="text-muted small text-uppercase">Joined</span>
+                        <i class="fas fa-calendar text-muted"></i>
+                    </div>
+                    <h6 class="heading mb-0">@Model.CreatedAt.ToString("dd MMM yyyy")</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-2 mb-4">
+
+        <div class="col-lg-6">
+            <div class="card stat-card h-100">
+                <div class="card-body pb-0">
+                    <h6 class="heading mb-3">Personal Information</h6>
+                </div>
+                <table class="table table-clean mb-0 w-100">
+                    <tbody>
+                        <tr>
+                            <td class="text-muted">First Name</td>
+                            <td class="fw-semibold text-end">@Model.FirstName</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Last Name</td>
+                            <td class="fw-semibold text-end">@Model.LastName</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Email</td>
+                            <td class="fw-semibold text-end">@Model.Email</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Phone</td>
+                            <td class="fw-semibold text-end">@(string.IsNullOrEmpty(Model.PhoneNumber) ? "—" : Model.PhoneNumber)</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Last Login</td>
+                            <td class="fw-semibold text-end">
+                                @(Model.LastLoginAt.HasValue? Model.LastLoginAt.Value.ToString("dd MMM yyyy, HH:mm") : "Never")
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card stat-card h-100">
+                <div class="card-body pb-0">
+                    <h6 class="heading mb-3">Estate Information</h6>
+                </div>
+                <table class="table table-clean mb-0 w-100">
+                    <tbody>
+                        <tr>
+                            <td class="text-muted">Unit Number</td>
+                            <td class="fw-semibold text-end">@unitNumber</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Vehicles</td>
+                            <td class="fw-semibold text-end">@vehicleCount</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Account Status</td>
+                            <td class="text-end">
+                                <span class="@(Model.IsActive ? "badge-soft-green" : "badge-soft-red")">
                                     @(Model.IsActive ? "Active" : "Inactive")
                                 </span>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="text-muted small text-uppercase">Approval</div>
-                            <div>
-                                <span class="badge @(isApproved ? "bg-success" : "bg-warning text-dark")">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Approval</td>
+                            <td class="text-end">
+                                <span class="@(isApproved ? "badge-soft-green" : "badge-soft-yellow")">
                                     @(isApproved ? "Approved" : "Pending")
                                 </span>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="text-muted small text-uppercase">Role</div>
-                            <div class="fw-semibold">@ViewBag.UserRole</div>
-                        </div>
-                    </div>
-                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Role</td>
+                            <td class="fw-semibold text-end">@ViewBag.UserRole</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
+
     </div>
 
-    <!-- ========================================== -->
-    <!-- PAYMENT SUMMARY                           -->
-    <!-- ========================================== -->
-    <div class="card shadow-sm mt-4">
-        <div class="card-header bg-white border-bottom">
-            <h6 class="m-0 fw-semibold">
-                <i class="fas fa-credit-card me-2"></i>Payment Summary
-            </h6>
+    <div class="card stat-card mb-4">
+        <div class="card-body pb-0">
+            <h6 class="heading mb-3">Payment Summary</h6>
         </div>
-        <div class="card-body">
-            <div class="row g-3 text-center mb-4">
-                <div class="col-md-4">
-                    <div class="p-3 bg-success bg-opacity-10 rounded-3 border border-success">
-                        <div class="text-muted small text-uppercase">Total Paid</div>
-                        <div class="h4 m-0 text-success">R @ViewBag.TotalPaid.ToString("N2")</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="p-3 bg-warning bg-opacity-10 rounded-3 border border-warning">
-                        <div class="text-muted small text-uppercase">Total Pending</div>
-                        <div class="h4 m-0 text-warning">R @ViewBag.TotalPending.ToString("N2")</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="p-3 bg-info bg-opacity-10 rounded-3 border border-info">
-                        <div class="text-muted small text-uppercase">Payments Count</div>
-                        <div class="h4 m-0 text-info">@ViewBag.PaymentsCount</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Payments Placeholder -->
-            <div class="alert alert-info mb-0">
-                <i class="fas fa-info-circle me-2"></i>
-                Payment history will be available once the transaction system is implemented.
-            </div>
-        </div>
+        <table class="table table-clean mb-0 w-100">
+            <tbody>
+                <tr>
+                    <td class="text-muted">Total Paid</td>
+                    <td class="fw-semibold text-end">R @ViewBag.TotalPaid.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Total Pending</td>
+                    <td class="fw-semibold text-end">R @ViewBag.TotalPending.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">Transactions</td>
+                    <td class="fw-semibold text-end">@ViewBag.PaymentsCount</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
-    <!-- ========================================== -->
-    <!-- ADMIN ACTIONS (Admin Only)                -->
-    <!-- ========================================== -->
     @if (User.IsInRole("Administrator"))
     {
-        <div class="card shadow-sm mt-4 border-danger">
-            <div class="card-header bg-white border-bottom border-danger">
-                <h6 class="m-0 fw-semibold text-danger">
-                    <i class="fas fa-shield-alt me-2"></i>Admin Actions
-                </h6>
+        <div class="card stat-card">
+            <div class="card-body pb-0">
+                <h6 class="heading mb-3">Admin Actions</h6>
             </div>
-            <div class="card-body">
+            <div class="card-body pt-0">
                 <div class="d-flex flex-wrap gap-2">
 
-                    <!-- Approve / Unapprove -->
                     @if (isStudent || isStaff)
                     {
                         <form asp-action="ToggleApproval" asp-controller="Customer" method="post" class="m-0">
                             <input type="hidden" name="id" value="@Model.Id" />
-                            <button type="submit" class="btn @(isApproved ? "btn-outline-warning" : "btn-outline-success")">
-                                <i class="fas @(isApproved ? "fa-times-circle" : "fa-check-circle") me-2"></i>
-                                @(isApproved ? "Unapprove User" : "Approve User")
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas @(isApproved ? "fa-circle-xmark me-1" : "fa-circle-check me-1")"></i>
+                                @(isApproved ? "Unapprove" : "Approve")
                             </button>
                         </form>
                     }
 
-                    <!-- Activate / Deactivate -->
                     <form asp-action="ToggleActive" asp-controller="Customer" method="post" class="m-0">
                         <input type="hidden" name="id" value="@Model.Id" />
-                        <button type="submit" class="btn @(Model.IsActive ? "btn-outline-warning" : "btn-outline-success")">
-                            <i class="fas @(Model.IsActive ? "fa-pause-circle" : "fa-play-circle") me-2"></i>
-                            @(Model.IsActive ? "Deactivate User" : "Activate User")
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas @(Model.IsActive ? "fa-circle-pause me-1" : "fa-circle-play me-1")"></i>
+                            @(Model.IsActive ? "Deactivate" : "Activate")
                         </button>
                     </form>
 
-                    <!-- Delete -->
                     <form asp-action="Delete" asp-controller="Customer" method="post" class="m-0"
-                          onsubmit="return confirm('Are you sure you want to delete @Model.FullName? This action cannot be undone.')">
+                          onsubmit="return confirm('Delete @Model.FullName? This cannot be undone.')">
                         <input type="hidden" name="id" value="@Model.Id" />
-                        <button type="submit" class="btn btn-outline-danger">
-                            <i class="fas fa-trash me-2"></i>Delete User
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash me-1"></i>Delete
                         </button>
                     </form>
 

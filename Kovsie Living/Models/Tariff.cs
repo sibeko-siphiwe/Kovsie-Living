@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Kovsie_Living.Models
 {
@@ -10,6 +11,7 @@ namespace Kovsie_Living.Models
         public string Name { get; set; }
 
         [Required]
+        [Precision(18,2)]
         public decimal Amount { get; set; }
 
         public string Description => $"This is a fee for {Name}";

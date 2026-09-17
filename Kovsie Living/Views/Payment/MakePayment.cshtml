@@ -4,54 +4,69 @@
     Layout = "_DashboardLayout";
 }
 
-<div class="container-fluid">
+<div class="container-fluid p-0">
 
-    <div class="mb-4">
-        <h2 class="heading display-6">Make Payment</h2>
-        <p class="m-0 text-muted lead">Pay for your estate services</p>
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4">
+        <div>
+            <h2 class="heading mb-1">Make Payment</h2>
+            <p class="text-muted mb-0">Pay for your estate services.</p>
+        </div>
+        <a asp-action="Index" asp-controller="Customer" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back
+        </a>
     </div>
 
     @if (TempData["message"] != null)
     {
         var messageType = TempData["messageType"]?.ToString() ?? "info";
-        <div class="alert alert-@messageType alert-dismissible fade show mb-3" role="alert">
+        <div class="alert alert-@messageType alert-dismissible fade show mb-4" role="alert">
             @TempData["message"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="row">
+    <div class="row g-2">
+
         <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
+            <div class="card stat-card h-100">
+                <div class="card-body pb-0">
+                    <h6 class="heading mb-3">Payment Details</h6>
+                </div>
+                <div class="card-body pt-0">
 
                     <form asp-action="MakePayment" method="post">
 
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                        <div class="mb-3">
-                            <label asp-for="TariffId" class="form-label fw-semibold"></label>
-                            <select asp-for="TariffId" class="form-select">
-                                @foreach (var tariff in Model.AvailableTariffs)
-                                {
-                                    <option value="@tariff.TariffId">@tariff.Name - R @tariff.Amount.ToString("N2")</option>
-                                }
-                            </select>
-                            <span asp-validation-for="TariffId" class="text-danger small"></span>
-                        </div>
+                        <div class="row g-3">
 
-                        <div class="mb-3">
-                            <label asp-for="Amount" class="form-label fw-semibold"></label>
-                            <div class="input-group">
-                                <span class="input-group-text">R</span>
-                                <input asp-for="Amount" class="form-control" placeholder="0.00" />
+                            <div class="col-md-12">
+                                <label asp-for="TariffId" class="form-label small text-muted text-uppercase"></label>
+                                <select asp-for="TariffId" class="form-select form-select-sm">
+                                    @foreach (var tariff in Model.AvailableTariffs)
+                                    {
+                                        <option value="@tariff.TariffId">@tariff.Name - R @tariff.Amount.ToString("N2")</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="TariffId" class="text-danger small"></span>
                             </div>
-                            <span asp-validation-for="Amount" class="text-danger small"></span>
+
+                            <div class="col-md-12">
+                                <label asp-for="Amount" class="form-label small text-muted text-uppercase"></label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">R</span>
+                                    <input asp-for="Amount" class="form-control form-control-sm" placeholder="0.00" />
+                                </div>
+                                <span asp-validation-for="Amount" class="text-danger small"></span>
+                            </div>
+
                         </div>
 
-                        <button type="submit" class="btn btn-dark w-100">
-                            <i class="fas fa-credit-card me-2"></i>Pay Now
-                        </button>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-sm btn-dark-soft">
+                                <i class="fas fa-credit-card me-1"></i>Pay Now
+                            </button>
+                        </div>
 
                     </form>
 
@@ -60,42 +75,42 @@
         </div>
 
         <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white border-bottom">
-                    <h6 class="m-0 fw-semibold">Available Services</h6>
+            <div class="card stat-card h-100">
+                <div class="card-body pb-0">
+                    <h6 class="heading mb-3">Available Services</h6>
                 </div>
-                <div class="card-body">
-                    @if (Model.AvailableTariffs.Any())
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Service</th>
-                                        <th>Price</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var tariff in Model.AvailableTariffs)
-                                    {
-                                        <tr>
-                                            <td>@tariff.Name</td>
-                                            <td>R @tariff.Amount.ToString("N2")</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text-center py-3">
-                            <p class="text-muted">No services available</p>
-                        </div>
-                    }
-                </div>
+
+                @if (Model.AvailableTariffs.Any())
+                {
+                    <table class="table table-clean mb-0 w-100">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th class="text-end">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var tariff in Model.AvailableTariffs)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@tariff.Name</td>
+                                    <td class="text-end">R @tariff.Amount.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-receipt fa-2x text-muted mb-3"></i>
+                        <h6 class="heading mb-1">No Services Available</h6>
+                        <p class="text-muted small mb-0">Services will appear here once added.</p>
+                    </div>
+                }
             </div>
         </div>
+
     </div>
 
 </div>

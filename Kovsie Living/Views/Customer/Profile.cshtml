@@ -2,93 +2,120 @@
 @{
     ViewData["Title"] = "Customer Profile";
     Layout = "_DashboardLayout";
+
+    var hasPicture = Model.CurrentProfilePicture != null && Model.CurrentProfilePicture.Length > 0;
 }
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-end mb-4 mt-3">
-        <div class="d-flex gap-2 align-items-center">
-            <div class="bg-secondary bg-opacity-10 border rounded-circle d-flex justify-content-center align-items-center" style="width: 70px; height: 70px;">
-                <span class="fs-3 fw-bolder text-muted">@Model.FirstName[0]@Model.LastName[0]</span>
-            </div>
-            <div>
-                <h2 class="m-0 heading">@Model.FirstName @Model.LastName</h2>
-                <p class="m-0 lead text-muted">@Model.UserName</p>
+<div class="container-fluid p-0">
+
+    <div class="card stat-card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+
+                    @if (hasPicture)
+                    {
+                        <img src="@Url.Action("ProfilePicture", "Account", new { id = Model.Id })"
+                             alt="Profile"
+                             class="user-avatar"
+                             style="width: 56px; height: 56px;" />
+                    }
+                    else
+                    {
+                        <div class="user-avatar" style="width: 56px; height: 56px; font-size: 1.1rem;">
+                            @Model.FirstName[0]@Model.LastName[0]
+                        </div>
+                    }
+
+                    <div>
+                        <h4 class="heading mb-1">@Model.FirstName @Model.LastName</h4>
+                        <p class="text-muted small mb-0">@Model.UserName</p>
+                    </div>
+                </div>
+                <a asp-action="ChangePassword" asp-controller="Customer" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-key me-1"></i>Change Password
+                </a>
             </div>
         </div>
-        <a asp-action="ChangePassword" asp-controller="Customer" asp-route-id="@Model.Id" class="btn btn-sm btn-dark">
-            <i class="fas fa-lock me-2"></i>Change Password
-        </a>
     </div>
 
     @if (TempData["message"] != null)
     {
         var messageType = TempData["messageType"]?.ToString() ?? "info";
-        <div class="alert alert-@messageType alert-dismissible fade show mb-3" role="alert">
+        <div class="alert alert-@messageType alert-dismissible fade show mb-4" role="alert">
             @TempData["message"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="card">
-        <div class="card-header text-center border-0 bg-white pb-0">
-            <h6 class="m-0 p-0 pt-2">Account Information</h6>
+    <div class="card stat-card">
+        <div class="card-body pb-0">
+            <h6 class="heading mb-3">Account Information</h6>
         </div>
-        <div class="card-body">
-            <form asp-action="Profile" method="post" class="border-top pt-3">
+        <div class="card-body pt-0">
 
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <form asp-action="Profile" method="post" enctype="multipart/form-data">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="IsStudent" />
 
-                <div class="mb-3">
-                    <label class="form-label">User Type</label>
-                    <input class="form-control" value="@(Model.IsStudent ? "Student" : "Staff")" readonly disabled />
+                <div class="row g-3">
+
+                    <div class="col-md-12">
+                        <label class="form-label small text-muted text-uppercase">Profile Picture</label>
+                        <input asp-for="ProfilePictureFile" type="file" accept="image/*" class="form-control form-control-sm" />
+                        <span asp-validation-for="ProfilePictureFile" class="text-danger small"></span>
+                        <small class="text-muted d-block mt-1">Leave empty to keep your current picture.</small>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label small text-muted text-uppercase">User Type</label>
+                        <input class="form-control form-control-sm" value="@(Model.IsStudent ? "Student" : "Staff")" readonly disabled />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="FirstName" class="form-label small text-muted text-uppercase"></label>
+                        <input asp-for="FirstName" class="form-control form-control-sm" />
+                        <span asp-validation-for="FirstName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="LastName" class="form-label small text-muted text-uppercase"></label>
+                        <input asp-for="LastName" class="form-control form-control-sm" />
+                        <span asp-validation-for="LastName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label asp-for="UserName" class="form-label small text-muted text-uppercase"></label>
+                        <input asp-for="UserName" class="form-control form-control-sm" />
+                        <span asp-validation-for="UserName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="UnitNumber" class="form-label small text-muted text-uppercase"></label>
+                        <input asp-for="UnitNumber" class="form-control form-control-sm" />
+                        <span asp-validation-for="UnitNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="VehicleNumber" class="form-label small text-muted text-uppercase"></label>
+                        <input asp-for="VehicleNumber" class="form-control form-control-sm" type="number" min="0" max="10" />
+                        <span asp-validation-for="VehicleNumber" class="text-danger small"></span>
+                    </div>
+
                 </div>
 
-                <div class="row mb-3">
-                    <div class="col-md">
-                        <div>
-                            <label asp-for="FirstName"></label>
-                            <input class="form-control" asp-for="FirstName" />
-                            <span asp-validation-for="FirstName" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-md">
-                        <div>
-                            <label asp-for="LastName"></label>
-                            <input class="form-control" asp-for="LastName" />
-                            <span asp-validation-for="LastName" class="text-danger"></span>
-                        </div>
-                    </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-sm btn-dark-soft">
+                        <i class="fas fa-check me-1"></i>Update Profile
+                    </button>
                 </div>
-
-                <div class="mb-3">
-                    <label asp-for="UserName"></label>
-                    <input class="form-control" asp-for="UserName" />
-                    <span asp-validation-for="UserName" class="text-danger"></span>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md">
-                        <div>
-                            <label asp-for="UnitNumber"></label>
-                            <input class="form-control" asp-for="UnitNumber" />
-                            <span asp-validation-for="UnitNumber" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-md">
-                        <div>
-                            <label asp-for="VehicleNumber"></label>
-                            <input class="form-control" asp-for="VehicleNumber" type="number" min="0" max="10" />
-                            <span asp-validation-for="VehicleNumber" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-dark w-100">Update Profile</button>
 
             </form>
+
         </div>
     </div>
+
 </div>

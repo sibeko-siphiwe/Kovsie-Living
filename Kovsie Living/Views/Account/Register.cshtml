@@ -6,70 +6,103 @@
 <div class="container">
     <div class="py-5 d-flex justify-content-center align-items-center">
         <form asp-action="Register" method="post" class="frmRegister mt-5">
+
             <div class="text-center mb-5">
-                <h2 class="display-6 m-0 heading">Create an account</h2>
-                <p class="m-0 lead text-muted">We're excited to have you join us on our platform</p>
+                <h2 class="heading mb-1">Create an account</h2>
+                <p class="text-muted mb-0">We're excited to have you join us on our platform</p>
             </div>
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
             <div class="mb-3">
+                <label class="form-label small text-muted text-uppercase">I am a</label>
                 <div class="btn-group w-100" role="group" id="userTypeToggle">
                     <input type="radio" class="btn-check" asp-for="IsStudent" value="true" id="studentRadio" autocomplete="off">
-                    <label class="btn btn-outline-dark" for="studentRadio">Student</label>
+                    <label class="btn btn-sm btn-outline-secondary" for="studentRadio">Student</label>
 
                     <input type="radio" class="btn-check" asp-for="IsStudent" value="false" id="staffRadio" autocomplete="off">
-                    <label class="btn btn-outline-dark" for="staffRadio">Staff</label>
+                    <label class="btn btn-sm btn-outline-secondary" for="staffRadio">Staff</label>
                 </div>
-                <span asp-validation-for="IsStudent" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <div class="row">
-                    <div class="col-md">
-                        <label asp-for="FirstName" class="mb-1"></label>
-                        <input asp-for="FirstName" class="form-control" placeholder="Enter your first name" />
-                    </div>
-                    <div class="col-md">
-                        <label asp-for="LastName" class="mb-1"></label>
-                        <input asp-for="LastName" class="form-control" placeholder="Enter your last name" />
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label asp-for="UserName" class="form-label" id="userNameLabel"></label>
-                <input asp-for="UserName" class="form-control" placeholder="e.g 2010936382" />
-                <span asp-validation-for="UserName" class="text-danger"></span>
+                <span asp-validation-for="IsStudent" class="text-danger small"></span>
             </div>
 
-            <div class="mb-3">
-                <div class="row">
-                    <div class="col-md">
-                        <div>
-                            <label asp-for="UnitNumber" class="form-label"></label>
-                            <input asp-for="UnitNumber" class="form-control" placeholder="e.g A450" />
-                            <span asp-validation-for="UnitNumber" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-md">
-                        <div>
-                            <label asp-for="VehicleNumber" class="form-label"></label>
-                            <input asp-for="VehicleNumber" class="form-control" placeholder="e.g 3" />
-                            <span asp-validation-for="VehicleNumber" class="text-danger"></span>
-                        </div>
-                    </div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label asp-for="FirstName" class="form-label small text-muted text-uppercase"></label>
+                    <input asp-for="FirstName" class="form-control form-control-sm" placeholder="Enter your first name" />
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="LastName" class="form-label small text-muted text-uppercase"></label>
+                    <input asp-for="LastName" class="form-control form-control-sm" placeholder="Enter your last name" />
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
                 </div>
             </div>
 
             <div class="mb-3">
-                <label asp-for="Password" class="form-label"></label>
-                <input asp-for="Password" class="form-control" placeholder="Enter your new password" />
+                <label asp-for="UserName" class="form-label small text-muted text-uppercase" id="userNameLabel"></label>
+                <input asp-for="UserName" class="form-control form-control-sm" placeholder="e.g 2010936382" />
+                <span asp-validation-for="UserName" class="text-danger small"></span>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label asp-for="UnitNumber" class="form-label small text-muted text-uppercase"></label>
+                    <input asp-for="UnitNumber" class="form-control form-control-sm" placeholder="e.g A450" />
+                    <span asp-validation-for="UnitNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="VehicleNumber" class="form-label small text-muted text-uppercase"></label>
+                    <input asp-for="VehicleNumber" class="form-control form-control-sm" placeholder="e.g 3" />
+                    <span asp-validation-for="VehicleNumber" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label small text-muted text-uppercase"></label>
+                <input asp-for="Password" class="form-control form-control-sm" placeholder="Enter your new password" />
                 <span asp-validation-for="Password" class="text-danger small"></span>
             </div>
+
             <div class="mb-3">
-                <label asp-for="ConfirmPassword" class="form-label"></label>
-                <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm your password" />
+                <label asp-for="ConfirmPassword" class="form-label small text-muted text-uppercase"></label>
+                <input asp-for="ConfirmPassword" class="form-control form-control-sm" placeholder="Confirm your password" />
                 <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
             </div>
-            <button type="submit" class="btn btn-dark w-100 mb-3">Create Account</button>
-            <p class="text-center">Already have an account? <a asp-action="Login" asp-controller="Account">Login</a></p>
+
+            <button type="submit" class="btn btn-sm btn-dark-soft w-100 mb-3">
+                <i class="fas fa-user-plus me-1"></i>Create Account
+            </button>
+
+            <p class="text-center small text-muted mb-0">
+                Already have an account?
+                <a asp-action="Login" asp-controller="Account" class="text-dark text-decoration-none fw-semibold">Login</a>
+            </p>
+
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const studentRadio = document.getElementById('studentRadio');
+            const staffRadio = document.getElementById('staffRadio');
+            const label = document.getElementById('userNameLabel');
+
+            function updateLabel() {
+                if (studentRadio.checked) {
+                    label.textContent = 'Student Number';
+                } else if (staffRadio.checked) {
+                    label.textContent = 'Staff Number';
+                }
+            }
+
+            studentRadio.addEventListener('change', updateLabel);
+            staffRadio.addEventListener('change', updateLabel);
+            updateLabel();
+        });
+    </script>
+}

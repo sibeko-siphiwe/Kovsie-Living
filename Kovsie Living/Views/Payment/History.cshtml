@@ -4,113 +4,128 @@
     Layout = "_DashboardLayout";
 }
 
-<div class="container-fluid">
+<div class="container-fluid p-0">
 
-    <div class="mb-4">
-        <h2 class="heading display-6">Payment History</h2>
-        <p class="m-0 text-muted lead">View all your payments</p>
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4">
+        <div>
+            <h2 class="heading mb-1">Payment History</h2>
+            <p class="text-muted mb-0">View all your payments.</p>
+        </div>
+        <a asp-action="Index" asp-controller="Customer" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back
+        </a>
     </div>
 
     @if (TempData["message"] != null)
     {
         var messageType = TempData["messageType"]?.ToString() ?? "info";
-        <div class="alert alert-@messageType alert-dismissible fade show mb-3" role="alert">
+        <div class="alert alert-@messageType alert-dismissible fade show mb-4" role="alert">
             @TempData["message"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="row gap-2 g-2 mb-4">
-        <div class="col-md">
-            <div class="p-3 border rounded bg-white">
-                <h6 class="text-muted mb-1">Total Paid</h6>
-                <h3 class="mb-2">R @Model.TotalPaid.ToString("N2")</h3>
-                <p class="m-0 small">Approved Payments</p>
-            </div>
-        </div>
-        <div class="col-md">
-            <div class="p-3 border rounded bg-white">
-                <h6 class="text-muted mb-1">Pending Payments</h6>
-                <h3 class="mb-2">R @Model.TotalPending.ToString("N2")</h3>
-                <p class="m-0 small">Awaiting Approval</p>
-            </div>
-        </div>
-        <div class="col-md">
-            <div class="p-3 border rounded bg-white">
-                <h6 class="text-muted mb-1">Total Transactions</h6>
-                <h3 class="mb-2">@Model.PaymentCount</h3>
-                <p class="m-0 small">Transactions Performed</p>
-            </div>
-        </div>
-    </div> 
+    <div class="row g-2 mb-4">
 
-    <div>
-        <div class="card px-2">
-            <div class="card-header text-center border-bottom bg-white pb-3">
-                <h6 class="m-0 pt-2">Transaction History</h6>
-            </div>
-            <div class="card-body">
-                @if (Model.Payments.Any())
-                {
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle text-center">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Service</th>
-                                    <th>Amount</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Reference</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var payment in Model.Payments)
-                                {
-                                    string statusBadge;
-                                    string statusColor;
-                                    if (payment.Status == "Paid")
-                                    {
-                                        statusBadge = "Paid";
-                                        statusColor = "bg-success";
-                                    }
-                                    else if (payment.Status == "Pending")
-                                    {
-                                        statusBadge = "Pending";
-                                        statusColor = "bg-warning text-dark";
-                                    }
-                                    else if (payment.Status == "Cancelled")
-                                    {
-                                        statusBadge = "Cancelled";
-                                        statusColor = "bg-danger";
-                                    }
-                                    else
-                                    {
-                                        statusBadge = payment.Status;
-                                        statusColor = "bg-secondary";
-                                    }
-
-                                    <tr>
-                                        <td>@payment.Tariff?.Name</td>
-                                        <td>R @payment.Amount.ToString("N2")</td>
-                                        <td>@payment.PaymentDate.ToString("dd MMM yyyy, HH:mm")</td>
-                                        <td><span class="badge @statusColor">@statusBadge</span></td>
-                                        <td><code>@payment.Reference</code></td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+        <div class="col-md">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="text-muted small text-uppercase">Total Paid</span>
+                        <i class="fas fa-money-bill text-muted"></i>
                     </div>
-                }
-                else
-                {
-                    <div class="p-5 text-center">
-                        <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">No Payments Yet</h5>
-                        <p class="text-muted">You haven't made any payments yet.</p>
-                    </div>
-                }
+                    <h3 class="heading mb-1">R @Model.TotalPaid.ToString("N2")</h3>
+                    <p class="text-muted small mb-0">Approved payments</p>
+                </div>
             </div>
         </div>
+
+        <div class="col-md">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="text-muted small text-uppercase">Pending Payments</span>
+                        <i class="fas fa-clock text-muted"></i>
+                    </div>
+                    <h3 class="heading mb-1">R @Model.TotalPending.ToString("N2")</h3>
+                    <p class="text-muted small mb-0">Awaiting approval</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="text-muted small text-uppercase">Transactions</span>
+                        <i class="fas fa-receipt text-muted"></i>
+                    </div>
+                    <h3 class="heading mb-1">@Model.PaymentCount</h3>
+                    <p class="text-muted small mb-0">Total transactions</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card stat-card">
+        <div class="card-body pb-0">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="heading mb-1">Transaction History</h6>
+                    <p class="text-muted small mb-0">@Model.PaymentCount transaction@(Model.PaymentCount == 1 ? "" : "s")</p>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.Payments.Any())
+        {
+            <table class="table table-clean mb-0 w-100">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Reference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var payment in Model.Payments)
+                    {
+                        string badgeClass = payment.Status switch
+                        {
+                            "Paid" => "badge-soft-green",
+                            "Pending" => "badge-soft-yellow",
+                            "Cancelled" => "badge-soft-red",
+                            "Rejected" => "badge-soft-red",
+                            _ => "badge-soft-gray"
+                        };
+
+                        <tr>
+                            <td class="fw-semibold">@payment.Tariff?.Name</td>
+                            <td class="fw-semibold">R @payment.Amount.ToString("N2")</td>
+                            <td class="text-muted">@payment.PaymentDate.ToString("dd MMM yyyy, HH:mm")</td>
+                            <td>
+                                <span class="@badgeClass">@payment.Status</span>
+                            </td>
+                            <td><code>@payment.Reference</code></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-receipt fa-2x text-muted mb-3"></i>
+                <h6 class="heading mb-1">No Payments Yet</h6>
+                <p class="text-muted small mb-3">You haven't made any payments yet.</p>
+                <a asp-action="MakePayment" asp-controller="Payment" class="btn btn-sm btn-dark-soft">
+                    <i class="fas fa-credit-card me-1"></i>Make First Payment
+                </a>
+            </div>
+        }
     </div>
 
 </div>

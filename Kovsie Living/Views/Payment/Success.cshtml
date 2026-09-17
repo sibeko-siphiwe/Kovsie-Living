@@ -4,43 +4,55 @@
     Layout = "_DashboardLayout";
 }
 
-<div class="container-fluid">
+<div class="container-fluid p-0">
 
-    <div class="text-center py-5">
-        <div class="mb-4">
-            <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
-        </div>
-        <h2 class="heading">Payment Successful!</h2>
-        <p class="lead text-muted">Your payment has been processed successfully.</p>
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
 
-        <div class="card shadow-sm mx-auto" style="max-width: 500px;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between py-2 border-bottom">
-                    <span class="text-muted">Service</span>
-                    <span class="fw-semibold">@Model.TariffName</span>
-                </div>
-                <div class="d-flex justify-content-between py-2 border-bottom">
-                    <span class="text-muted">Amount</span>
-                    <span class="fw-semibold">R @Model.Amount.ToString("N2")</span>
-                </div>
-                <div class="d-flex justify-content-between py-2 border-bottom">
-                    <span class="text-muted">Reference</span>
-                    <span class="fw-semibold">@Model.Reference</span>
-                </div>
-                <div class="d-flex justify-content-between py-2">
-                    <span class="text-muted">Date</span>
-                    <span class="fw-semibold">@Model.PaymentDate.ToString("dd MMM yyyy, HH:mm")</span>
+            <div class="card stat-card text-center">
+                <div class="card-body py-5">
+
+                    <i class="fas fa-check-circle text-success mb-3" style="font-size: 3rem;"></i>
+
+                    <h3 class="heading mb-1">Payment Successful</h3>
+                    <p class="text-muted small mb-4">Your payment has been processed successfully.</p>
+
+                    <div class="text-start border-top pt-3">
+
+                        <div class="d-flex justify-content-between py-2">
+                            <span class="text-muted small text-uppercase">Service</span>
+                            <span class="fw-semibold">@Model.TariffName</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between py-2 border-top">
+                            <span class="text-muted small text-uppercase">Amount</span>
+                            <span class="fw-semibold">R @Model.Amount.ToString("N2")</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between py-2 border-top">
+                            <span class="text-muted small text-uppercase">Reference</span>
+                            <span class="fw-semibold">@Model.Reference</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between py-2 border-top">
+                            <span class="text-muted small text-uppercase">Date</span>
+                            <span class="fw-semibold">@Model.PaymentDate.ToString("dd MMM yyyy, HH:mm")</span>
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-center mt-4 pt-3 border-top">
+                        <a asp-action="History" asp-controller="Payment" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-clock-rotate-left me-1"></i>View History
+                        </a>
+                        <a asp-action="Index" asp-controller="Customer" class="btn btn-sm btn-dark-soft">
+                            <i class="fas fa-home me-1"></i>Dashboard
+                        </a>
+                    </div>
+
                 </div>
             </div>
-        </div>
 
-        <div class="mt-4 d-flex gap-2 justify-content-center">
-            <a asp-action="History" asp-controller="Payment" class="btn btn-outline-dark">
-                <i class="fas fa-clock-rotate me-2"></i>View History
-            </a>
-            <a asp-action="Index" asp-controller="Customer" class="btn btn-dark">
-                <i class="fas fa-home me-2"></i>Dashboard
-            </a>
         </div>
     </div>
 

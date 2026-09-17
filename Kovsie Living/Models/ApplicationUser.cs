@@ -10,6 +10,8 @@ namespace Kovsie_Living.Models
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginAt { get; set; }
+        public byte[] ProfilePicture { get; set; }
+        public string ProfilePictureContentType { get; set; }
 
         // Navigation Properties
         public Student Student { get; set; }

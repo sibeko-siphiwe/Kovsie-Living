@@ -1,25 +1,24 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width" />
-    <title>@ViewData["Title"] - Kovsie_Living</title>
-    <script type="importmap"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Kovsie Living</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Kovsie_Living.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard.css" />
 </head>
 <body>
 
-    <aside class="sidebar-desktop" id="desktopSidebar">
+    <div class="sidebar d-none d-lg-block">
         <div class="sidebar-brand">
             <div class="d-flex align-items-center gap-2">
-                <div class="brand-icon">
+                <div class="sidebar-brand-icon">
                     <i class="fas fa-building"></i>
                 </div>
                 <div>
-                    <h6 class="mb-0 fw-bold">Kovsie Living</h6>
-                    <p class="small m-0 text-muted">
+                    <div class="heading fw-bold text-dark">Kovsie Living</div>
+                    <div class="text-muted small">
                         @if (User.IsInRole("Administrator"))
                         {
                             @:Administrator
@@ -32,278 +31,271 @@
                         {
                             @:Customer
                         }
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <ul class="nav flex-column gap-1">
-
-                @if (User.IsInRole("Administrator"))
-                {
-                    <li class="nav-item">
-                        <a asp-action="Index" asp-controller="Dashboard" class="sidebar-link">
-                            <i class="fas fa-gauge me-3"></i>System Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Customers" asp-controller="Dashboard" class="sidebar-link">
-                            <i class="fas fa-user-group me-3"></i>Manage Customers
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Officers" asp-controller="Dashboard" class="sidebar-link">
-                            <i class="fas fa-user-shield me-3"></i>Manage Officers
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Tariffs" asp-controller="Dashboard" class="sidebar-link">
-                            <i class="fas fa-tags me-3"></i>Manage Tariffs
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Pending" asp-controller="Payment" class="sidebar-link">
-                            <i class="fas fa-clock me-3"></i>Pending Payments
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Index" asp-controller="Report" class="sidebar-link">
-                            <i class="fas fa-file-alt me-3"></i>View Reports
-                        </a>
-                    </li>
-                }
-
-                @if (User.IsInRole("Officer"))
-                {
-                    <li class="nav-item">
-                        <a asp-action="Index" asp-controller="Dashboard" class="sidebar-link">
-                            <i class="fas fa-gauge me-3"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Customers" asp-controller="Dashboard" class="sidebar-link">
-                            <i class="fas fa-user-group me-3"></i>Manage Customers
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Pending" asp-controller="Payment" class="sidebar-link">
-                            <i class="fas fa-clock me-3"></i>Pending Payments
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="MyReports" asp-controller="Report" class="sidebar-link">
-                            <i class="fas fa-history me-3"></i>My Reports
-                        </a>
-                    </li>
-                }
-
-                @if (User.IsInRole("Customer"))
-                {
-                    <li class="nav-item">
-                        <a asp-action="Index" asp-controller="Customer" class="sidebar-link">
-                            <i class="fas fa-gauge me-3"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="MakePayment" asp-controller="Payment" class="sidebar-link">
-                            <i class="fas fa-credit-card me-3"></i>Make Payment
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="History" asp-controller="Payment" class="sidebar-link">
-                            <i class="fas fa-history me-3"></i>Payment History
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Profile" asp-controller="Customer" class="sidebar-link">
-                            <i class="fas fa-user me-3"></i>My Profile
-                        </a>
-                    </li>
-                }
-
-            </ul>
-        </nav>
-    </aside>
-
-    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
-
-    <aside class="sidebar-mobile" id="mobileSidebar">
-        <div class="sidebar-mobile-header">
-            <div class="d-flex align-items-center gap-2">
-                <div class="brand-icon">
-                    <i class="fas fa-building"></i>
-                </div>
-                <div>
-                    <h6 class="mb-0 fw-bold">Kovsie Living</h6>
-                    <p class="small m-0 text-muted">
-                        @if (User.IsInRole("Administrator"))
-                        {
-                            @:Administrator
-                        }
-                        else if (User.IsInRole("Officer"))
-                        {
-                            @:Financial Officer
-                        }
-                        else
-                        {
-                            @:Customer
-                        }
-                    </p>
-                </div>
-            </div>
-            <button class="btn btn-sm btn-outline-secondary" id="closeSidebarBtn">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-
-        <nav class="sidebar-nav">
-            <ul class="nav flex-column gap-1">
-
-                @if (User.IsInRole("Administrator"))
-                {
-                    <li class="nav-item">
-                        <a asp-action="Index" asp-controller="Dashboard" class="sidebar-link">
-                            <i class="fas fa-gauge me-3"></i>System Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Customers" asp-controller="Dashboard" class="sidebar-link">
-                            <i class="fas fa-user-group me-3"></i>Manage Customers
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Officers" asp-controller="Dashboard" class="sidebar-link">
-                            <i class="fas fa-user-shield me-3"></i>Manage Officers
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Tariffs" asp-controller="Dashboard" class="sidebar-link">
-                            <i class="fas fa-tags me-3"></i>Manage Tariffs
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Pending" asp-controller="Payment" class="sidebar-link">
-                            <i class="fas fa-clock me-3"></i>Pending Payments
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Index" asp-controller="Report" class="sidebar-link">
-                            <i class="fas fa-file-alt me-3"></i>View Reports
-                        </a>
-                    </li>
-                }
-
-                @if (User.IsInRole("Officer"))
-                {
-                    <li class="nav-item">
-                        <a asp-action="Index" asp-controller="Dashboard" class="sidebar-link">
-                            <i class="fas fa-gauge me-3"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Customers" asp-controller="Dashboard" class="sidebar-link">
-                            <i class="fas fa-user-group me-3"></i>Manage Customers
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Pending" asp-controller="Payment" class="sidebar-link">
-                            <i class="fas fa-clock me-3"></i>Pending Payments
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="MyReports" asp-controller="Report" class="sidebar-link">
-                            <i class="fas fa-history me-3"></i>My Reports
-                        </a>
-                    </li>
-                }
-
-                @if (User.IsInRole("Customer"))
-                {
-                    <li class="nav-item">
-                        <a asp-action="Index" asp-controller="Customer" class="sidebar-link">
-                            <i class="fas fa-gauge me-3"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="MakePayment" asp-controller="Payment" class="sidebar-link">
-                            <i class="fas fa-credit-card me-3"></i>Make Payment
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="History" asp-controller="Payment" class="sidebar-link">
-                            <i class="fas fa-history me-3"></i>Payment History
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Profile" asp-controller="Customer" class="sidebar-link">
-                            <i class="fas fa-user me-3"></i>My Profile
-                        </a>
-                    </li>
-                }
-
-            </ul>
-        </nav>
-    </aside>
-
-    <div class="main-wrapper" id="mainWrapper">
-
-        <header class="topbar">
-            <div class="d-flex justify-content-between align-items-center w-100">
-
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-icon d-lg-none" id="menuToggleBtn" aria-label="Toggle menu">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <a asp-action="Index" asp-controller="Home" class="d-none d-sm-block">
-                        <img src="~/images/logo.png" width="150" alt="Kovsie Living Logo" />
-                    </a>
-                </div>
-
-                <div class="d-flex align-items-center gap-2">
-                    <div class="dropdown">
-                        <button class="btn user-dropdown d-flex align-items-center gap-2 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="user-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="text-start d-none d-sm-block">
-                                <h6 class="mb-0 small fw-semibold">@User.Identity.Name</h6>
-                                <p class="text-muted small m-0">
-                                    @if (User.IsInRole("Administrator"))
-                                    {
-                                        @:Administrator
-                                    }
-                                    else if (User.IsInRole("Officer"))
-                                    {
-                                        @:Financial Officer
-                                    }
-                                    else
-                                    {
-                                        @:Customer
-                                    }
-                                </p>
-                            </div>
-                            <i class="fas fa-chevron-down small text-muted d-none d-sm-block"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow">
-                            <li>
-                                <form asp-action="Logout" asp-controller="Account" method="post" class="m-0">
-                                    <button type="submit" class="dropdown-item">
-                                        <i class="fas fa-door-open me-2"></i>Sign Out
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
                     </div>
                 </div>
-
             </div>
-        </header>
+        </div>
 
-        <main class="content-area">
+        <ul class="sidebar-menu">
+            @if (User.IsInRole("Administrator"))
+            {
+                <li>
+                    <a asp-action="Index" asp-controller="Dashboard">
+                        <i class="fas fa-gauge"></i>Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="Customers" asp-controller="Dashboard">
+                        <i class="fas fa-user-group"></i>Customers
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="Officers" asp-controller="Dashboard">
+                        <i class="fas fa-user-shield"></i>Officers
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="Tariffs" asp-controller="Dashboard">
+                        <i class="fas fa-tags"></i>Tariffs
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="Pending" asp-controller="Payment">
+                        <i class="fas fa-clock"></i>Pending Payments
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="Index" asp-controller="Report">
+                        <i class="fas fa-file-alt"></i>Reports
+                    </a>
+                </li>
+            }
+
+            @if (User.IsInRole("Officer"))
+            {
+                <li>
+                    <a asp-action="Index" asp-controller="Dashboard">
+                        <i class="fas fa-gauge"></i>Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="Customers" asp-controller="Dashboard">
+                        <i class="fas fa-user-group"></i>Customers
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="Pending" asp-controller="Payment">
+                        <i class="fas fa-clock"></i>Pending Payments
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="MyReports" asp-controller="Report">
+                        <i class="fas fa-history"></i>My Reports
+                    </a>
+                </li>
+            }
+
+            @if (User.IsInRole("Customer"))
+            {
+                <li>
+                    <a asp-action="Index" asp-controller="Customer">
+                        <i class="fas fa-gauge"></i>Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="MakePayment" asp-controller="Payment">
+                        <i class="fas fa-credit-card"></i>Make Payment
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="History" asp-controller="Payment">
+                        <i class="fas fa-history"></i>Payment History
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="Profile" asp-controller="Customer">
+                        <i class="fas fa-user"></i>My Profile
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div class="main-content">
+
+        <div class="topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-sm btn-outline-secondary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a asp-action="Index" asp-controller="Home" class="d-none d-sm-block">
+                    <img src="~/images/logo.png" width="130" alt="Kovsie Living" />
+                </a>
+            </div>
+
+            <div class="dropdown">
+                <button class="btn user-dropdown d-flex align-items-center gap-2 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                        <img src="@Url.Action("ProfilePicture", "Account", new { id = userId })"
+                             alt="Profile"
+                             class="user-avatar"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="user-avatar" style="display: none;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    }
+
+                    <div class="text-start d-none d-sm-block">
+                        <div class="fw-semibold small text-dark">@User.Identity.Name</div>
+                        <div class="text-muted" style="font-size: 0.72rem;">
+                            @if (User.IsInRole("Administrator"))
+                            {
+                                @:Administrator
+                            }
+                            else if (User.IsInRole("Officer"))
+                            {
+                                @:Financial Officer
+                            }
+                            else
+                            {
+                                @:Customer
+                            }
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-down text-muted small d-none d-sm-block"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <form asp-action="Logout" asp-controller="Account" method="post" class="m-0">
+                            <button type="submit" class="dropdown-item">
+                                <i class="fas fa-door-open me-2"></i>Sign Out
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <main class="page-content">
             @RenderBody()
         </main>
 
+    </div>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar">
+        <div class="offcanvas-header">
+            <div class="d-flex align-items-center gap-2">
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-building"></i>
+                </div>
+                <div>
+                    <div class="heading fw-bold text-dark">Kovsie Living</div>
+                    <div class="text-muted small">
+                        @if (User.IsInRole("Administrator"))
+                        {
+                            @:Administrator
+                        }
+                        else if (User.IsInRole("Officer"))
+                        {
+                            @:Financial Officer
+                        }
+                        else
+                        {
+                            @:Customer
+                        }
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <ul class="sidebar-menu">
+                @if (User.IsInRole("Administrator"))
+                {
+                    <li>
+                        <a asp-action="Index" asp-controller="Dashboard">
+                            <i class="fas fa-gauge"></i>Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-action="Customers" asp-controller="Dashboard">
+                            <i class="fas fa-user-group"></i>Customers
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-action="Officers" asp-controller="Dashboard">
+                            <i class="fas fa-user-shield"></i>Officers
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-action="Tariffs" asp-controller="Dashboard">
+                            <i class="fas fa-tags"></i>Tariffs
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-action="Pending" asp-controller="Payment">
+                            <i class="fas fa-clock"></i>Pending Payments
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-action="Index" asp-controller="Report">
+                            <i class="fas fa-file-alt"></i>Reports
+                        </a>
+                    </li>
+                }
+
+                @if (User.IsInRole("Officer"))
+                {
+                    <li>
+                        <a asp-action="Index" asp-controller="Dashboard">
+                            <i class="fas fa-gauge"></i>Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-action="Customers" asp-controller="Dashboard">
+                            <i class="fas fa-user-group"></i>Customers
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-action="Pending" asp-controller="Payment">
+                            <i class="fas fa-clock"></i>Pending Payments
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-action="MyReports" asp-controller="Report">
+                            <i class="fas fa-history"></i>My Reports
+                        </a>
+                    </li>
+                }
+
+                @if (User.IsInRole("Customer"))
+                {
+                    <li>
+                        <a asp-action="Index" asp-controller="Customer">
+                            <i class="fas fa-gauge"></i>Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-action="MakePayment" asp-controller="Payment">
+                            <i class="fas fa-credit-card"></i>Make Payment
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-action="History" asp-controller="Payment">
+                            <i class="fas fa-history"></i>Payment History
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-action="Profile" asp-controller="Customer">
+                            <i class="fas fa-user"></i>My Profile
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

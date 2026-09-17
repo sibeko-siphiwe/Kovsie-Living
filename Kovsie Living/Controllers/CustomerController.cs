@@ -78,6 +78,7 @@ namespace Kovsie_Living.Controllers
             if (string.IsNullOrEmpty(id))
             {
                 TempData["message"] = "Invalid user identifier";
+                TempData["messageType"] = "danger";
                 return RedirectToAction("Customers", "Dashboard");
             }
 
@@ -90,19 +91,28 @@ namespace Kovsie_Living.Controllers
             if (user == null)
             {
                 TempData["message"] = "User not found";
+                TempData["messageType"] = "danger";
                 return RedirectToAction("Customers", "Dashboard");
             }
 
-            // Get user roles
             var roles = await _userManager.GetRolesAsync(user);
             var role = roles.FirstOrDefault() ?? "Customer";
 
-            // Get payment summary (placeholder - will be implemented later)
-            ViewBag.TotalPaid = 4200.00m;      // Placeholder
-            ViewBag.TotalPending = 1800.00m;   // Placeholder
-            ViewBag.PaymentsCount = 8;         // Placeholder
+            // REAL payment data
+            var payments = await _context.Payments
+                .Where(p => p.UserId == id)
+                .ToListAsync();
 
-            // Pass role to view
+            ViewBag.TotalPaid = payments
+                .Where(p => p.Status == "Paid")
+                .Sum(p => p.Amount);
+
+            ViewBag.TotalPending = payments
+                .Where(p => p.Status == "Pending")
+                .Sum(p => p.Amount);
+
+            ViewBag.PaymentsCount = payments.Count;
+
             ViewBag.UserRole = role;
 
             return View(user);
@@ -506,6 +516,8 @@ namespace Kovsie_Living.Controllers
                 LastName = user.LastName,
                 UserName = user.UserName,
                 IsStudent = user.Student != null,
+                CurrentProfilePicture = user.ProfilePicture,
+                CurrentProfilePictureContentType = user.ProfilePictureContentType
             };
 
             if (user.Student != null)
@@ -550,6 +562,16 @@ namespace Kovsie_Living.Controllers
                     }
                 }
 
+                if (model.ProfilePictureFile != null && model.ProfilePictureFile.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await model.ProfilePictureFile.CopyToAsync(memoryStream);
+                        user.ProfilePicture = memoryStream.ToArray();
+                        user.ProfilePictureContentType = model.ProfilePictureFile.ContentType;
+                    }
+                }
+
                 user.FirstName = model.FirstName;
                 user.LastName = model.LastName;
                 user.UserName = model.UserName;
@@ -572,7 +594,7 @@ namespace Kovsie_Living.Controllers
                     await _context.SaveChangesAsync();
                     TempData["message"] = "Profile updated successfully!";
                     TempData["messageType"] = "success";
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Profile");
                 }
 
                 foreach (var error in result.Errors)

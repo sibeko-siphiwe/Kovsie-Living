@@ -4,55 +4,55 @@
     Layout = "_DashboardLayout";
 }
 
-<div class="container-fluid">
+<div class="container-fluid p-0">
 
-    <div class="d-flex justify-content-between flex-wrap gap-2 align-items-end mb-4">
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4">
         <div>
-            <h2 class="heading display-6">Manage Officers</h2>
-            <p class="m-0 text-muted lead">Manage financial officer accounts and assign authority</p>
+            <h2 class="heading mb-1">Manage Officers</h2>
+            <p class="text-muted mb-0">Manage financial officer accounts and assign authority.</p>
         </div>
-        <a asp-action="Create" asp-controller="Officer" class="btn btn-sm btn-dark">
-            <i class="fas fa-user-plus me-2"></i>Add New Officer
+        <a asp-action="Create" asp-controller="Officer" class="btn btn-sm btn-dark-soft">
+            <i class="fas fa-plus me-1"></i>New Officer
         </a>
     </div>
 
     @if (TempData["message"] != null)
     {
         var messageType = TempData["messageType"]?.ToString() ?? "info";
-        <div class="alert alert-@messageType alert-dismissible fade show mb-3" role="alert">
+        <div class="alert alert-@messageType alert-dismissible fade show mb-4" role="alert">
             @TempData["message"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <div class="mb-4">
-        <div class="p-3 bg-white shadow-sm rounded">
+    <div class="card stat-card mb-4">
+        <div class="card-body">
             <form method="get" asp-action="Officers" asp-controller="Dashboard">
                 <div class="row g-2 align-items-end">
                     <div class="col-md-5">
-                        <label class="form-label fw-semibold small">Search</label>
+                        <label class="form-label small text-muted text-uppercase">Search</label>
                         <input name="searchTerm" placeholder="Search by name, employee number, or email..."
                                class="form-control form-control-sm" value="@ViewBag.SearchTerm" />
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold small">Status</label>
+                    <div class="col-md-5">
+                        <label class="form-label small text-muted text-uppercase">Status</label>
                         <select name="statusFilter" class="form-select form-select-sm">
                             <option value="">All Status</option>
                             <option value="Active" selected="@(ViewBag.StatusFilter == "Active")">Active</option>
                             <option value="Inactive" selected="@(ViewBag.StatusFilter == "Inactive")">Inactive</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <button type="submit" class="btn btn-sm btn-dark w-100">
-                            <i class="fas fa-filter me-2"></i>Apply Filter
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-sm btn-dark-soft w-100">
+                            <i class="fas fa-filter me-1"></i>Apply
                         </button>
                     </div>
                 </div>
 
                 @if (!string.IsNullOrEmpty(ViewBag.SearchTerm) || !string.IsNullOrEmpty(ViewBag.StatusFilter))
                 {
-                    <div class="mt-2">
-                        <a asp-action="Officers" asp-controller="Dashboard" class="text-muted small">
+                    <div class="mt-3 pt-3 border-top">
+                        <a asp-action="Officers" asp-controller="Dashboard" class="text-muted small text-decoration-none">
                             <i class="fas fa-times-circle me-1"></i>Clear all filters
                         </a>
                     </div>
@@ -61,115 +61,121 @@
         </div>
     </div>
 
-    <div class="card px-4 py-2">
-        <div class="card-header text-center border-bottom bg-white">
-            <h6 class="m-0 pb-2">Assigned Officers</h6>
+    <div class="card stat-card">
+        <div class="card-body pb-0">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="heading mb-1">Assigned Officers</h6>
+                    <p class="text-muted small mb-0">@Model.Count() officer@(Model.Count() == 1 ? "" : "s") found</p>
+                </div>
+            </div>
         </div>
-        <div class="card-body px-0 pb-0">
 
-            @if (Model != null && Model.Any())
-            {
-                <div class="table-responsive-lg">
-                    <table class="table table-bordered align-middle text-center">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Full Name</th>
-                                <th>Employee Number</th>
-                                <th>Phone Number</th>
-                                <th>Email Address</th>
-                                <th>Status</th>
-                                <th>Authorization</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var user in Model)
-                            {
-                                var officer = user.FinancialOfficer;
-                                var isAuthorized = officer?.IsAuthorized ?? false;
+        @if (Model != null && Model.Any())
+        {
+            <table class="table table-clean mb-0 w-100">
+                <thead>
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Employee Number</th>
+                        <th>Status</th>
+                        <th>Phone Number</th> 
+                        <th>Authorization</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        var officer = user.FinancialOfficer;
+                        var isAuthorized = officer?.IsAuthorized ?? false;
 
-                                <tr>
-                                    <td>@user.FullName</td>
-                                    <td>@(officer != null ? officer.EmployeeNumber : "N/A")</td>
-                                    <td>@(officer != null ? officer.PhoneNumber : "N/A")</td>
-                                    <td>@user.Email</td>
-                                    <td>
-                                        @if (user.IsActive)
-                                        {
-                                            <span class="badge bg-success">Active</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-danger">Inactive</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        @if (isAuthorized)
-                                        {
-                                            <span class="badge bg-success">Authorized</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-warning text-dark">Pending</span>
-                                        }
-                                    </td>
-                                    <td class="nav-item dropdown">
-                                        <button class="btn btn-sm btn-outline-dark w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            Actions
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a asp-action="Details" asp-controller="Officer" asp-route-id="@user.Id" class="dropdown-item">
-                                                <i class="fas fa-eye me-2"></i>View Details
-                                            </a>
-                                            <a asp-action="Edit" asp-controller="Officer" asp-route-id="@user.Id" class="dropdown-item">
-                                                <i class="fas fa-edit me-2"></i>Edit Officer
-                                            </a>
+                        <tr>
+                            <td class="fw-semibold">@user.FullName</td>
+                            <td class="text-muted">@(officer != null ? officer.EmployeeNumber : "N/A")</td>
+                            <td>
+                                @if (user.IsActive)
+                                {
+                                    <span class="badge-soft-green">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-soft-red">Inactive</span>
+                                }
+                            </td>
+                            <td>@(officer != null ? officer.PhoneNumber : "N/A")</td>
+                            <td>
+                                @if (isAuthorized)
+                                {
+                                    <span class="badge-soft-green">Authorized</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-soft-yellow">Pending</span>
+                                }
+                            </td>
+                            <td class="text-nowrap text-end">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-sm dropdown-menu-end">
+                                        <a asp-action="Details" asp-controller="Officer" asp-route-id="@user.Id" class="dropdown-item">
+                                            <i class="fas fa-eye me-2"></i>View
+                                        </a>
+                                        <a asp-action="Edit" asp-controller="Officer" asp-route-id="@user.Id" class="dropdown-item">
+                                            <i class="fas fa-pen me-2"></i>Edit
+                                        </a>
 
-                                            @if (officer != null)
+                                        @if (officer != null)
+                                        {
+                                            <div class="dropdown-divider"></div>
+                                            if (!isAuthorized)
                                             {
-                                                if (!isAuthorized)
-                                                {
-                                                    <form asp-action="Authorize" asp-controller="Officer" method="post" class="m-0">
-                                                        <input type="hidden" name="id" value="@user.Id" />
-                                                        <button type="submit" class="dropdown-item">
-                                                            <i class="fas fa-check-circle me-2"></i>Authorize Officer
-                                                        </button>
-                                                    </form>
-                                                }
-                                                else
-                                                {
-                                                    <form asp-action="Revoke" asp-controller="Officer" method="post" class="m-0">
-                                                        <input type="hidden" name="id" value="@user.Id" />
-                                                        <button type="submit" class="dropdown-item">
-                                                            <i class="fas fa-times-circle me-2"></i>Revoke Authorization
-                                                        </button>
-                                                    </form>
-                                                }
+                                                <form asp-action="Authorize" asp-controller="Officer" method="post" class="m-0">
+                                                    <input type="hidden" name="id" value="@user.Id" />
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-circle-check me-2"></i>Authorize
+                                                    </button>
+                                                </form>
                                             }
+                                            else
+                                            {
+                                                <form asp-action="Revoke" asp-controller="Officer" method="post" class="m-0">
+                                                    <input type="hidden" name="id" value="@user.Id" />
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-circle-xmark me-2"></i>Revoke
+                                                    </button>
+                                                </form>
+                                            }
+                                        }
 
-                                            <form asp-action="Delete" asp-controller="Officer" method="post" class="m-0" onsubmit="return confirm('Are you sure you want to delete this officer?')">
-                                                <input type="hidden" name="id" value="@user.Id" />
-                                                <button type="submit" class="dropdown-item text-danger">
-                                                    <i class="fas fa-trash me-2"></i>Delete Officer
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="p-5 text-center">
-                    <i class="fas fa-user-shield fa-3x text-muted m-3"></i>
-                    <h5 class="text-muted">No Officers Found</h5>
-                    <p class="mb-3 text-muted">Try adjusting your search filters or add new officers</p> 
-                </div>
-            }
-        </div>
+                                        <div class="dropdown-divider"></div>
+                                        <form asp-action="Delete" asp-controller="Officer" method="post" class="m-0" onsubmit="return confirm('Delete this officer?')">
+                                            <input type="hidden" name="id" value="@user.Id" />
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="fas fa-trash me-2"></i>Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-user-shield fa-2x text-muted mb-3"></i>
+                <h6 class="heading mb-1">No Officers Yet</h6>
+                <p class="text-muted small mb-3">Add a financial officer to get started.</p>
+                <a asp-action="Create" asp-controller="Officer" class="btn btn-sm btn-dark-soft">
+                    <i class="fas fa-plus me-1"></i>Add First Officer
+                </a>
+            </div>
+        }
     </div>
 
 </div>

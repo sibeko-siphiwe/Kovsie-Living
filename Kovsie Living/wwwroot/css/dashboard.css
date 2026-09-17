@@ -1,0 +1,251 @@
+﻿body {
+    background-color: #fafbfc;
+}
+
+.heading {
+    font-family: Cambria;
+    font-weight: 500;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 240px;
+    height: 100vh;
+    background-color: #ffffff;
+    border-right: 1px solid #eef1f3;
+    overflow-y: auto;
+    z-index: 1030;
+}
+
+.sidebar-brand {
+    padding: 1rem;
+    border-bottom: 1px solid #eef1f3;
+}
+
+.sidebar-brand-icon {
+    width: 36px;
+    height: 36px;
+    background-color: #2c3e50;
+    color: #ffffff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-menu {
+    padding: 0.75rem;
+    list-style: none;
+    margin: 0;
+}
+
+    .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.6rem 0.75rem;
+        color: #495057;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        margin-bottom: 0.15rem;
+    }
+
+        .sidebar-menu a:hover {
+            background-color: #f5f7f9;
+            color: #212529;
+        }
+
+        .sidebar-menu a.active {
+            background-color: #2c3e50;
+            color: #ffffff;
+        }
+
+    .sidebar-menu i {
+        width: 16px;
+        text-align: center;
+    }
+
+.main-content {
+    margin-left: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 992px) {
+    .main-content {
+        margin-left: 240px;
+    }
+}
+
+.topbar {
+    background-color: #ffffff;
+    border-bottom: 1px solid #eef1f3;
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.topbar-avatar {
+    width: 34px;
+    height: 34px;
+    background-color: #2c3e50;
+    color: #ffffff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+
+.page-content {
+    flex: 1;
+    padding: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .page-content {
+        padding: 1rem;
+    }
+}
+
+.btn-dark-soft {
+    background-color: #2c3e50;
+    border-color: #2c3e50;
+    color: #ffffff;
+}
+
+    .btn-dark-soft:hover {
+        background-color: #34495e;
+        border-color: #34495e;
+        color: #ffffff;
+    }
+
+.badge-soft-green {
+    background-color: #e8f5ed;
+    color: #1e6b3a;
+}
+
+.badge-soft-yellow {
+    background-color: #fdf4e3;
+    color: #8a6520;
+}
+
+.badge-soft-red {
+    background-color: #fbeaea;
+    color: #962c2c;
+}
+
+.badge-soft-blue {
+    background-color: #eef4fb;
+    color: #2c5f8d;
+}
+
+.badge-soft-purple {
+    background-color: #f0eef8;
+    color: #5b4a8a;
+}
+
+.badge-soft-gray {
+    background-color: #f1f3f5;
+    color: #495057;
+}
+
+.badge-soft-green,
+.badge-soft-yellow,
+.badge-soft-red,
+.badge-soft-blue,
+.badge-soft-purple,
+.badge-soft-gray {
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.table-clean thead th {
+    font-size: 0.72rem;
+    color: #495057;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    border-bottom: 1px solid #eef1f3;
+    padding: 0.75rem 1rem;
+    background-color: transparent;
+    white-space: nowrap;
+}
+
+.table-clean tbody td {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: #212529;
+    border-bottom: 1px solid #f5f7f9;
+    vertical-align: middle;
+}
+
+.table-clean tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.card {
+    overflow: visible !important;
+}
+
+.table-responsive {
+    overflow: visible !important;
+}
+
+.dropdown-menu {
+    z-index: 9999 !important;
+}
+
+.stat-card {
+    background-color: #ffffff;
+    border: 1px solid #eef1f3;
+    border-radius: 10px;
+}
+
+@media (max-width: 991px) {
+    .sidebar {
+        display: none;
+    }
+}
+
+.dropdown-menu-sm {
+    min-width: 160px;
+    padding: 0.25rem;
+    font-size: 0.8rem;
+}
+
+    .dropdown-menu-sm .dropdown-item {
+        padding: 0.4rem 0.65rem;
+        font-size: 0.8rem;
+        border-radius: 6px;
+    }
+
+    .dropdown-menu-sm .dropdown-divider {
+        margin: 0.25rem 0;
+    }
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: #2c3e50;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    object-fit: cover;
+}
