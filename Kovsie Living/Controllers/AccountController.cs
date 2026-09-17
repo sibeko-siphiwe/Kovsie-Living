@@ -4,6 +4,7 @@ using Kovsie_Living.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Data.Common;
 
@@ -46,11 +47,25 @@ namespace Kovsie_Living.Controllers
                             ModelState.AddModelError("", "Your account is currently inactive. Please contact support.");
                             return View(model);
                         }
+
+                        if (await _userManager.IsInRoleAsync(user, "Officer"))
+                        {
+                            var officer = await _context.FinancialOfficers
+                                .FirstOrDefaultAsync(o => o.UserId == user.Id);
+
+                            if (officer == null || !officer.IsAuthorized)
+                            {
+                                ModelState.AddModelError("", "Your account has not been authorized yet. Please contact the administrator.");
+                                return View(model);
+                            }
+                        }
+
                         var results = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, false);
 
                         if (results.Succeeded)
                         {
-                            if (User.IsInRole("Administrator")|| User.IsInRole("Officer"))
+                            if (await _userManager.IsInRoleAsync(user, "Administrator") ||
+                                await _userManager.IsInRoleAsync(user, "Officer"))
                             {
                                 return RedirectToAction("Index", "Dashboard");
                             }
@@ -59,9 +74,13 @@ namespace Kovsie_Living.Controllers
                                 return RedirectToAction("Index", "Customer");
                             }
                         }
+
                         ModelState.AddModelError("", "Invalid username or password");
                     }
-                    ModelState.AddModelError("", "Invalid username or password");
+                    else
+                    {
+                        ModelState.AddModelError("", "Invalid username or password");
+                    }
                 }
                 catch (Exception)
                 {
