@@ -11,7 +11,7 @@
             <h2 class="heading display-6">Manage Officers</h2>
             <p class="m-0 text-muted lead">Manage financial officer accounts and assign authority</p>
         </div>
-        <a asp-action="Create" asp-controller="Officer" class="btn btn-dark">
+        <a asp-action="Create" asp-controller="Officer" class="btn btn-sm btn-dark">
             <i class="fas fa-user-plus me-2"></i>Add New Officer
         </a>
     </div>
@@ -32,18 +32,18 @@
                     <div class="col-md-5">
                         <label class="form-label fw-semibold small">Search</label>
                         <input name="searchTerm" placeholder="Search by name, employee number, or email..."
-                               class="form-control" value="@ViewBag.SearchTerm" />
+                               class="form-control form-control-sm" value="@ViewBag.SearchTerm" />
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold small">Status</label>
-                        <select name="statusFilter" class="form-select">
+                        <select name="statusFilter" class="form-select form-select-sm">
                             <option value="">All Status</option>
                             <option value="Active" selected="@(ViewBag.StatusFilter == "Active")">Active</option>
                             <option value="Inactive" selected="@(ViewBag.StatusFilter == "Inactive")">Inactive</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <button type="submit" class="btn btn-dark w-100">
+                        <button type="submit" class="btn btn-sm btn-dark w-100">
                             <i class="fas fa-filter me-2"></i>Apply Filter
                         </button>
                     </div>

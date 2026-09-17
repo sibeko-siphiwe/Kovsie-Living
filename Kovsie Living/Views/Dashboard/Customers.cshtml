@@ -8,10 +8,10 @@
 
     <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4">
         <div>
-            <h2 class="heading display-6 m-0">Customer Management</h2>
+            <h2 class="heading display-6 m-0">Manage Customers</h2>
             <p class="m-0 lead text-muted">Manage all registered customers and their estate accounts</p>
         </div>
-        <a asp-action="Create" asp-controller="Customer" class="btn btn-dark">
+        <a asp-action="Create" asp-controller="Customer" class="btn btn-sm btn-dark">
             <i class="fas fa-user-plus me-2"></i>Create New Customer
         </a>
     </div>
@@ -32,11 +32,11 @@
                     <div class="col-md-4">
                         <label class="form-label fw-semibold small">Search</label>
                         <input name="searchTerm" placeholder="Search by name, username, or email..."
-                               class="form-control" value="@ViewBag.SearchTerm" />
+                               class="form-control form-control-sm" value="@ViewBag.SearchTerm" />
                     </div>
                     <div class="col-md-3">
                         <label class="form-label fw-semibold small">User Type</label>
-                        <select name="userTypeFilter" class="form-select">
+                        <select name="userTypeFilter" class="form-select-sm form-select">
                             <option value="">All Types</option>
                             <option value="Student" selected="@(ViewBag.UserTypeFilter == "Student")">Student</option>
                             <option value="Staff" selected="@(ViewBag.UserTypeFilter == "Staff")">Staff</option>
@@ -44,7 +44,7 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label fw-semibold small">Status</label>
-                        <select name="statusFilter" class="form-select">
+                        <select name="statusFilter" class="form-select-sm form-select">
                             <option value="">All Status</option>
                             <option value="Active" selected="@(ViewBag.StatusFilter == "Active")">Active</option>
                             <option value="Pending" selected="@(ViewBag.StatusFilter == "Pending")">Pending</option>
@@ -52,7 +52,7 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <button type="submit" class="btn btn-dark w-100">
+                        <button type="submit" class="btn btn-sm btn-dark w-100">
                             <i class="fas fa-filter me-2"></i>Apply Filter
                         </button>
                     </div>
