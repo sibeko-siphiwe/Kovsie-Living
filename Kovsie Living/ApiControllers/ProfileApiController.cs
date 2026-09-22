@@ -145,13 +145,25 @@ namespace Kovsie_Living.ApiControllers
                     });
                 }
 
-                var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png" };
-                if (!allowedTypes.Contains(model.ProfilePictureFile.ContentType.ToLower()))
+                var contentType = (model.ProfilePictureFile.ContentType ?? "").ToLower().Trim();
+
+                var allowedTypes = new[]
+                {
+                    "image/jpeg",
+                    "image/jpg",
+                    "image/png",
+                    "image/pjpeg",   // Progressive JPEG (some Android versions)
+                    "image/x-png"    // Older PNG MIME
+                };
+
+                var isImageWildcard = contentType.StartsWith("image/");
+
+                if (!allowedTypes.Contains(contentType) && !isImageWildcard)
                 {
                     return BadRequest(new ProfileResponseDto
                     {
                         Success = false,
-                        Message = "Only JPG and PNG files are allowed."
+                        Message = $"Only image files are allowed. Received: {contentType}"
                     });
                 }
 

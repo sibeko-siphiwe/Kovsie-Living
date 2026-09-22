@@ -280,5 +280,102 @@ namespace Kovsie_Living.ApiControllers
             var bytes = await System.IO.File.ReadAllBytesAsync(filePath);
             return File(bytes, "application/pdf", $"{report.Title}.pdf");
         }
+
+        [HttpGet("customers")]
+        public async Task<IActionResult> GetCustomers()
+        {
+            var customerRoleId = await _context.Roles
+                .Where(r => r.Name == "Customer")
+                .Select(r => r.Id)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrEmpty(customerRoleId))
+            {
+                return Ok(new OfficerCustomersResponseDto
+                {
+                    Success = true,
+                    Message = "No customers found",
+                    TotalCount = 0,
+                    Customers = new List<OfficerCustomerItemDto>()
+                });
+            }
+
+            var customerIds = await _context.UserRoles
+                .Where(ur => ur.RoleId == customerRoleId)
+                .Select(ur => ur.UserId)
+                .ToListAsync();
+
+            var customers = await _context.Users
+                .Include(u => u.Student)
+                .Include(u => u.Staff)
+                .Where(u => customerIds.Contains(u.Id))
+                .OrderByDescending(u => u.CreatedAt)
+                .ToListAsync();
+
+            var items = customers.Select(u =>
+            {
+                var isStudent = u.Student != null;
+                var isStaff = u.Staff != null;
+                var isApproved = u.Student?.IsApproved ?? u.Staff?.IsApproved ?? false;
+                var unit = u.Student?.UnitNumber ?? u.Staff?.UnitNumber ?? "N/A";
+
+                return new OfficerCustomerItemDto
+                {
+                    UserId = u.Id,
+                    FullName = u.FullName,
+                    UserName = u.UserName,
+                    Email = u.Email,
+                    UserType = isStudent ? "Student" : (isStaff ? "Staff" : "Unknown"),
+                    UnitNumber = unit,
+                    IsApproved = isApproved,
+                    IsActive = u.IsActive
+                };
+            }).ToList();
+
+            return Ok(new OfficerCustomersResponseDto
+            {
+                Success = true,
+                Message = "Customers retrieved",
+                TotalCount = items.Count,
+                Customers = items
+            });
+        }
+
+        [HttpPost("customers/toggle-approval/{userId}")]
+        public async Task<IActionResult> ToggleCustomerApproval(string userId)
+        {
+            var user = await _context.Users
+                .Include(u => u.Student)
+                .Include(u => u.Staff)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                return NotFound(new { success = false, message = "User not found" });
+            }
+
+            if (user.Student != null)
+            {
+                user.Student.IsApproved = !user.Student.IsApproved;
+                await _context.SaveChangesAsync();
+                return Ok(new
+                {
+                    success = true,
+                    message = $"Student {(user.Student.IsApproved ? "approved" : "unapproved")} successfully"
+                });
+            }
+            else if (user.Staff != null)
+            {
+                user.Staff.IsApproved = !user.Staff.IsApproved;
+                await _context.SaveChangesAsync();
+                return Ok(new
+                {
+                    success = true,
+                    message = $"Staff {(user.Staff.IsApproved ? "approved" : "unapproved")} successfully"
+                });
+            }
+
+            return BadRequest(new { success = false, message = "User is not a customer" });
+        }
     }
 }
