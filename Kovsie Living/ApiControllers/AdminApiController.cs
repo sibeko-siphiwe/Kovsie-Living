@@ -1,4 +1,5 @@
 ﻿using Kovsie_Living.Data;
+using Kovsie_Living.Helpers;
 using Kovsie_Living.Models;
 using Kovsie_Living.Models.DTOs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,7 +25,7 @@ namespace Kovsie_Living.ApiControllers
             _context = context;
             _userManager = userManager;
         }
-         
+
         [HttpGet("dashboard")]
         public async Task<IActionResult> GetDashboard()
         {
@@ -76,7 +77,6 @@ namespace Kovsie_Living.ApiControllers
                 .Where(p => p.Status == "Paid")
                 .SumAsync(p => (decimal?)p.Amount) ?? 0;
 
-            // Recent activity - combine last 5 users + last 5 payments
             var recentUsers = await _context.Users
                 .OrderByDescending(u => u.CreatedAt)
                 .Take(5)
@@ -124,7 +124,7 @@ namespace Kovsie_Living.ApiControllers
                 RecentActivities = combined
             });
         }
-         
+
         [HttpGet("customers")]
         public async Task<IActionResult> GetCustomers()
         {
@@ -183,6 +183,128 @@ namespace Kovsie_Living.ApiControllers
                 TotalCount = items.Count,
                 Customers = items
             });
+        }
+
+        [HttpPost("customers/create")]
+        public async Task<IActionResult> CreateCustomer([FromBody] AdminCreateCustomerRequestDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new AdminCreateCustomerResponseDto
+                {
+                    Success = false,
+                    Message = "Invalid request",
+                    Errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList()
+                });
+            }
+
+            try
+            {
+                var userName = model.UserName?.Trim();
+
+                var exists = await _userManager.FindByNameAsync(userName);
+                if (exists != null)
+                {
+                    return BadRequest(new AdminCreateCustomerResponseDto
+                    {
+                        Success = false,
+                        Message = "This student/staff number is already registered."
+                    });
+                }
+
+                var email = $"{userName}@ufs.ac.za";
+
+                var emailExists = await _userManager.FindByEmailAsync(email);
+                if (emailExists != null)
+                {
+                    return BadRequest(new AdminCreateCustomerResponseDto
+                    {
+                        Success = false,
+                        Message = "An account with this email already exists."
+                    });
+                }
+
+                var tempPassword = TemporaryPasswordGenerator.Generate();
+
+                var user = new ApplicationUser
+                {
+                    FirstName = model.FirstName.Trim(),
+                    LastName = model.LastName.Trim(),
+                    UserName = userName,
+                    Email = email,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var result = await _userManager.CreateAsync(user, tempPassword);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new AdminCreateCustomerResponseDto
+                    {
+                        Success = false,
+                        Message = "Failed to create account",
+                        Errors = result.Errors.Select(e => e.Description).ToList()
+                    });
+                }
+
+                if (model.IsStudent)
+                {
+                    _context.Students.Add(new Student
+                    {
+                        StudentNumber = userName,
+                        UnitNumber = model.UnitNumber?.Trim(),
+                        VehicleNumber = model.VehicleNumber,
+                        IsApproved = true,
+                        UserId = user.Id
+                    });
+                }
+                else
+                {
+                    _context.Staff.Add(new Staff
+                    {
+                        StaffNumber = userName,
+                        UnitNumber = model.UnitNumber?.Trim(),
+                        VehicleNumber = model.VehicleNumber,
+                        IsApproved = true,
+                        UserId = user.Id
+                    });
+                }
+
+                var roleResult = await _userManager.AddToRoleAsync(user, "Customer");
+                if (!roleResult.Succeeded)
+                {
+                    await _userManager.DeleteAsync(user);
+                    return BadRequest(new AdminCreateCustomerResponseDto
+                    {
+                        Success = false,
+                        Message = "Failed to assign customer role",
+                        Errors = roleResult.Errors.Select(e => e.Description).ToList()
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new AdminCreateCustomerResponseDto
+                {
+                    Success = true,
+                    Message = "Customer created successfully",
+                    UserId = user.Id,
+                    FullName = user.FullName,
+                    UserName = user.UserName,
+                    TemporaryPassword = tempPassword
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new AdminCreateCustomerResponseDto
+                {
+                    Success = false,
+                    Message = "An unexpected error occurred."
+                });
+            }
         }
 
         [HttpPost("customers/toggle-approval/{userId}")]
@@ -269,7 +391,7 @@ namespace Kovsie_Living.ApiControllers
                 message = result.Succeeded ? "User deleted successfully" : "Failed to delete user"
             });
         }
-         
+
         [HttpGet("officers")]
         public async Task<IActionResult> GetOfficers()
         {
@@ -380,7 +502,7 @@ namespace Kovsie_Living.ApiControllers
                 success = result.Succeeded,
                 message = result.Succeeded ? "Officer deleted successfully" : "Failed to delete officer"
             });
-        } 
+        }
 
         [HttpGet("tariffs")]
         public async Task<IActionResult> GetTariffs()
@@ -403,6 +525,504 @@ namespace Kovsie_Living.ApiControllers
                 TotalCount = tariffs.Count,
                 Tariffs = tariffs
             });
+        }
+
+        [HttpPut("customers/update/{userId}")]
+        public async Task<IActionResult> UpdateCustomer(string userId,
+                                                [FromBody] AdminUpdateCustomerRequestDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new AdminCreateCustomerResponseDto
+                {
+                    Success = false,
+                    Message = "Invalid request",
+                    Errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList()
+                });
+            }
+
+            try
+            {
+                var user = await _context.Users
+                    .Include(u => u.Student)
+                    .Include(u => u.Staff)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+
+                if (user == null)
+                {
+                    return NotFound(new AdminCreateCustomerResponseDto
+                    {
+                        Success = false,
+                        Message = "User not found"
+                    });
+                }
+
+                var newUserName = model.UserName?.Trim();
+                var userNameChanged = !string.Equals(user.UserName, newUserName,
+                                                      StringComparison.OrdinalIgnoreCase);
+
+                if (userNameChanged)
+                {
+                    var existing = await _userManager.FindByNameAsync(newUserName);
+                    if (existing != null && existing.Id != user.Id)
+                    {
+                        return BadRequest(new AdminCreateCustomerResponseDto
+                        {
+                            Success = false,
+                            Message = "This student/staff number is already registered."
+                        });
+                    }
+                }
+
+                user.FirstName = model.FirstName.Trim();
+                user.LastName = model.LastName.Trim();
+
+                if (userNameChanged)
+                {
+                    user.UserName = newUserName;
+                    user.Email = $"{newUserName}@ufs.ac.za";
+
+                    if (user.Student != null)
+                    {
+                        user.Student.StudentNumber = newUserName;
+                    }
+                    else if (user.Staff != null)
+                    {
+                        user.Staff.StaffNumber = newUserName;
+                    }
+                }
+
+                if (user.Student != null)
+                {
+                    user.Student.UnitNumber = model.UnitNumber?.Trim();
+                    user.Student.VehicleNumber = model.VehicleNumber;
+                }
+                else if (user.Staff != null)
+                {
+                    user.Staff.UnitNumber = model.UnitNumber?.Trim();
+                    user.Staff.VehicleNumber = model.VehicleNumber;
+                }
+
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new AdminCreateCustomerResponseDto
+                    {
+                        Success = false,
+                        Message = "Failed to update customer",
+                        Errors = result.Errors.Select(e => e.Description).ToList()
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new AdminCreateCustomerResponseDto
+                {
+                    Success = true,
+                    Message = "Customer updated successfully",
+                    UserId = user.Id,
+                    FullName = user.FullName,
+                    UserName = user.UserName
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new AdminCreateCustomerResponseDto
+                {
+                    Success = false,
+                    Message = "An unexpected error occurred."
+                });
+            }
+        }
+
+        [HttpPost("officers/create")]
+        public async Task<IActionResult> CreateOfficer([FromBody] AdminCreateOfficerRequestDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new AdminCreateOfficerResponseDto
+                {
+                    Success = false,
+                    Message = "Invalid request",
+                    Errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList()
+                });
+            }
+
+            try
+            {
+                var employeeNumber = model.EmployeeNumber?.Trim();
+
+                var exists = await _userManager.FindByNameAsync(employeeNumber);
+                if (exists != null)
+                {
+                    return BadRequest(new AdminCreateOfficerResponseDto
+                    {
+                        Success = false,
+                        Message = "This employee number is already registered."
+                    });
+                }
+
+                var email = $"{employeeNumber}@ufs.ac.za";
+
+                var emailExists = await _userManager.FindByEmailAsync(email);
+                if (emailExists != null)
+                {
+                    return BadRequest(new AdminCreateOfficerResponseDto
+                    {
+                        Success = false,
+                        Message = "An account with this email already exists."
+                    });
+                }
+
+                var tempPassword = TemporaryPasswordGenerator.Generate();
+
+                var user = new ApplicationUser
+                {
+                    FirstName = model.FirstName.Trim(),
+                    LastName = model.LastName.Trim(),
+                    UserName = employeeNumber,
+                    Email = email,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var result = await _userManager.CreateAsync(user, tempPassword);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new AdminCreateOfficerResponseDto
+                    {
+                        Success = false,
+                        Message = "Failed to create account",
+                        Errors = result.Errors.Select(e => e.Description).ToList()
+                    });
+                }
+
+                _context.FinancialOfficers.Add(new FinancialOfficer
+                {
+                    EmployeeNumber = employeeNumber,
+                    PhoneNumber = model.PhoneNumber.Trim(),
+                    IsAuthorized = false,
+                    UserId = user.Id
+                });
+
+                var roleResult = await _userManager.AddToRoleAsync(user, "Officer");
+                if (!roleResult.Succeeded)
+                {
+                    await _userManager.DeleteAsync(user);
+                    return BadRequest(new AdminCreateOfficerResponseDto
+                    {
+                        Success = false,
+                        Message = "Failed to assign officer role",
+                        Errors = roleResult.Errors.Select(e => e.Description).ToList()
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new AdminCreateOfficerResponseDto
+                {
+                    Success = true,
+                    Message = "Officer created. Authorize them to allow sign-in.",
+                    UserId = user.Id,
+                    FullName = user.FullName,
+                    UserName = user.UserName,
+                    TemporaryPassword = tempPassword
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new AdminCreateOfficerResponseDto
+                {
+                    Success = false,
+                    Message = "An unexpected error occurred."
+                });
+            }
+        }
+
+        [HttpPut("officers/update/{userId}")]
+        public async Task<IActionResult> UpdateOfficer(string userId,
+                                               [FromBody] AdminUpdateOfficerRequestDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new AdminCreateOfficerResponseDto
+                {
+                    Success = false,
+                    Message = "Invalid request",
+                    Errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList()
+                });
+            }
+
+            try
+            {
+                var user = await _context.Users
+                    .Include(u => u.FinancialOfficer)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+
+                if (user == null)
+                {
+                    return NotFound(new AdminCreateOfficerResponseDto
+                    {
+                        Success = false,
+                        Message = "Officer not found"
+                    });
+                }
+
+                var newEmployeeNumber = model.EmployeeNumber?.Trim();
+                var numberChanged = !string.Equals(user.UserName, newEmployeeNumber,
+                                                    StringComparison.OrdinalIgnoreCase);
+
+                if (numberChanged)
+                {
+                    var existing = await _userManager.FindByNameAsync(newEmployeeNumber);
+                    if (existing != null && existing.Id != user.Id)
+                    {
+                        return BadRequest(new AdminCreateOfficerResponseDto
+                        {
+                            Success = false,
+                            Message = "This employee number is already registered."
+                        });
+                    }
+                }
+
+                user.FirstName = model.FirstName.Trim();
+                user.LastName = model.LastName.Trim();
+
+                if (numberChanged)
+                {
+                    user.UserName = newEmployeeNumber;
+                    user.Email = $"{newEmployeeNumber}@ufs.ac.za";
+
+                    if (user.FinancialOfficer != null)
+                    {
+                        user.FinancialOfficer.EmployeeNumber = newEmployeeNumber;
+                    }
+                }
+
+                if (user.FinancialOfficer != null)
+                {
+                    user.FinancialOfficer.PhoneNumber = model.PhoneNumber.Trim();
+                }
+
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new AdminCreateOfficerResponseDto
+                    {
+                        Success = false,
+                        Message = "Failed to update officer",
+                        Errors = result.Errors.Select(e => e.Description).ToList()
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new AdminCreateOfficerResponseDto
+                {
+                    Success = true,
+                    Message = "Officer updated successfully",
+                    UserId = user.Id,
+                    FullName = user.FullName,
+                    UserName = user.UserName
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new AdminCreateOfficerResponseDto
+                {
+                    Success = false,
+                    Message = "An unexpected error occurred."
+                });
+            }
+        }
+
+        [HttpPost("tariffs/create")]
+        public async Task<IActionResult> CreateTariff([FromBody] AdminCreateTariffRequestDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new AdminTariffActionResponseDto
+                {
+                    Success = false,
+                    Message = "Invalid request",
+                    Errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList()
+                });
+            }
+
+            try
+            {
+                var name = model.Name?.Trim();
+
+                var exists = await _context.Tariffs
+                    .AnyAsync(t => t.Name.ToLower() == name.ToLower());
+
+                if (exists)
+                {
+                    return BadRequest(new AdminTariffActionResponseDto
+                    {
+                        Success = false,
+                        Message = "A tariff with this name already exists."
+                    });
+                }
+
+                var tariff = new Tariff
+                {
+                    Name = name,
+                    Amount = model.Amount,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _context.Tariffs.Add(tariff);
+                await _context.SaveChangesAsync();
+
+                return Ok(new AdminTariffActionResponseDto
+                {
+                    Success = true,
+                    Message = "Tariff created successfully",
+                    TariffId = tariff.TariffId,
+                    Name = tariff.Name,
+                    Amount = tariff.Amount,
+                    IsActive = tariff.IsActive
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new AdminTariffActionResponseDto
+                {
+                    Success = false,
+                    Message = "An unexpected error occurred."
+                });
+            }
+        }
+
+        [HttpPut("tariffs/update/{id}")]
+        public async Task<IActionResult> UpdateTariff(int id,
+                                                      [FromBody] AdminUpdateTariffRequestDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new AdminTariffActionResponseDto
+                {
+                    Success = false,
+                    Message = "Invalid request",
+                    Errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList()
+                });
+            }
+
+            try
+            {
+                var tariff = await _context.Tariffs.FindAsync(id);
+                if (tariff == null)
+                {
+                    return NotFound(new AdminTariffActionResponseDto
+                    {
+                        Success = false,
+                        Message = "Tariff not found"
+                    });
+                }
+
+                var name = model.Name?.Trim();
+
+                var exists = await _context.Tariffs
+                    .AnyAsync(t => t.TariffId != id && t.Name.ToLower() == name.ToLower());
+
+                if (exists)
+                {
+                    return BadRequest(new AdminTariffActionResponseDto
+                    {
+                        Success = false,
+                        Message = "A tariff with this name already exists."
+                    });
+                }
+
+                tariff.Name = name;
+                tariff.Amount = model.Amount;
+                tariff.IsActive = model.IsActive;
+                tariff.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new AdminTariffActionResponseDto
+                {
+                    Success = true,
+                    Message = "Tariff updated successfully",
+                    TariffId = tariff.TariffId,
+                    Name = tariff.Name,
+                    Amount = tariff.Amount,
+                    IsActive = tariff.IsActive
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new AdminTariffActionResponseDto
+                {
+                    Success = false,
+                    Message = "An unexpected error occurred."
+                });
+            }
+        }
+
+        [HttpDelete("tariffs/delete/{id}")]
+        public async Task<IActionResult> DeleteTariff(int id)
+        {
+            try
+            {
+                var tariff = await _context.Tariffs.FindAsync(id);
+                if (tariff == null)
+                {
+                    return NotFound(new AdminTariffActionResponseDto
+                    {
+                        Success = false,
+                        Message = "Tariff not found"
+                    });
+                }
+
+                var inUse = await _context.Payments.AnyAsync(p => p.TariffId == id);
+                if (inUse)
+                {
+                    return BadRequest(new AdminTariffActionResponseDto
+                    {
+                        Success = false,
+                        Message = "This tariff is in use and cannot be deleted. Deactivate it instead.",
+                        TariffId = id
+                    });
+                }
+
+                _context.Tariffs.Remove(tariff);
+                await _context.SaveChangesAsync();
+
+                return Ok(new AdminTariffActionResponseDto
+                {
+                    Success = true,
+                    Message = "Tariff deleted successfully",
+                    TariffId = id
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new AdminTariffActionResponseDto
+                {
+                    Success = false,
+                    Message = "An unexpected error occurred."
+                });
+            }
         }
     }
 }
