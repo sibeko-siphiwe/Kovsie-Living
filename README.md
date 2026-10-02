@@ -1,9 +1,4 @@
-# UFS Qwaqwa Campus - Housing Management System 🏢📱
-
-[![Framework](https://shields.io)](https://microsoft.com)
-[![Platform](https://shields.io)](https://android.com)
-[![Database](https://shields.io)](https://microsoft.com)
-[![Language](https://shields.io_|_Java_|_Kotlin-blue)]()
+# UFS Qwaqwa Campus - Housing Management System 🏢📱 
 
 A complete **Client-Server Application** designed to digitize, streamline, and automate online accommodation payments and housing operations for the University of the Free State (UFS) Qwaqwa Campus.
 
