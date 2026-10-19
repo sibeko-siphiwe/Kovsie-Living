@@ -131,11 +131,8 @@ namespace Kovsie_Living.Controllers
                             var student = new Student
                             {
                                 StudentNumber = model.UserName,
-                                UnitNumber = model.UnitNumber?.Trim(),
-                                VehicleNumber = model.VehicleNumber,
                                 UserId = user.Id
                             };
-
                             _context.Students.Add(student);
                         }
                         else
@@ -143,11 +140,8 @@ namespace Kovsie_Living.Controllers
                             var staff = new Staff
                             {
                                 StaffNumber = model.UserName,
-                                UnitNumber = model.UnitNumber?.Trim(),
-                                VehicleNumber = model.VehicleNumber,
                                 UserId = user.Id
                             };
-
                             _context.Staff.Add(staff);
                         }
 
@@ -156,7 +150,6 @@ namespace Kovsie_Living.Controllers
                         if (roleResult.Succeeded)
                         {
                             await _context.SaveChangesAsync();
-
                             await _signInManager.SignInAsync(user, isPersistent: true);
                             return RedirectToAction("Index", "Customer");
                         }

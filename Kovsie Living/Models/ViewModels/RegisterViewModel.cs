@@ -23,16 +23,6 @@ namespace Kovsie_Living.Models.ViewModels
         [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = "Number can only contain letters and numbers")]
         public string UserName { get; set; }
 
-        [Required(ErrorMessage = "Unit/House number is required")]
-        [Display(Name = "Unit / House Number")]
-        [StringLength(20, MinimumLength = 1, ErrorMessage = "Unit number must be between 1 and 20 characters")]
-        [RegularExpression(@"^[a-zA-Z0-9\s\-/]+$", ErrorMessage = "Unit number can only contain letters, numbers, spaces, hyphens and slashes")]
-        public string UnitNumber { get; set; }
-
-        [Display(Name = "Number of Vehicles")]
-        [Range(0, 10, ErrorMessage = "Vehicle number must be between 0 and 10")]
-        public int VehicleNumber { get; set; } = 0;
-
         [DisplayName("I am a Student")]
         public bool IsStudent { get; set; } = true;
 
@@ -48,6 +38,6 @@ namespace Kovsie_Living.Models.ViewModels
         [DataType(DataType.Password)]
         [Display(Name = "Confirm Password")]
         [Compare("Password", ErrorMessage = "Passwords do not match")]
-        public string ConfirmPassword { get; set; }         
+        public string ConfirmPassword { get; set; }
     }
 }

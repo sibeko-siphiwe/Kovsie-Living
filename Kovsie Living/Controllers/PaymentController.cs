@@ -1,4 +1,5 @@
 ﻿using Kovsie_Living.Data;
+using Kovsie_Living.Helpers;
 using Kovsie_Living.Models;
 using Kovsie_Living.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -31,7 +32,8 @@ namespace Kovsie_Living.Controllers
             var model = new MakePaymentViewModel
             {
                 AvailableTariffs = tariffs,
-                TariffId = tariffs.FirstOrDefault()?.TariffId ?? 0
+                TariffId = tariffs.FirstOrDefault()?.TariffId ?? 0,
+                Amount = tariffs.FirstOrDefault()?.Amount.ToString("F2") ?? "0.00"
             };
 
             return View(model);
@@ -41,46 +43,90 @@ namespace Kovsie_Living.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MakePayment(MakePaymentViewModel model)
         {
-            if (ModelState.IsValid)
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Account");
+
+            var tariff = await _context.Tariffs.FindAsync(model.TariffId);
+            if (tariff == null)
             {
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null)
-                {
-                    return RedirectToAction("Login", "Account");
-                }
-
-                var tariff = await _context.Tariffs.FindAsync(model.TariffId);
-                if (tariff == null)
-                {
-                    ModelState.AddModelError("", "Selected service not found");
-                    model.AvailableTariffs = await _context.Tariffs.Where(t => t.IsActive).ToListAsync();
-                    return View(model);
-                }
-
-                var reference = GenerateReference();
-
-                var payment = new Payment
-                {
-                    UserId = user.Id,
-                    TariffId = model.TariffId,
-                    Amount = model.Amount,
-                    Reference = reference,
-                    Status = "Pending",  // ← Always starts as Pending
-                    PaymentDate = DateTime.UtcNow,
-                    PaymentMethod = "Online"
-                };
-
-                _context.Payments.Add(payment);
-                await _context.SaveChangesAsync();
-
-                TempData["message"] = "Payment submitted successfully! Awaiting approval.";
-                TempData["messageType"] = "info";
-
-                return RedirectToAction("Success", new { id = payment.PaymentId });
+                ModelState.AddModelError("", "Selected service not found");
+                model.AvailableTariffs = await _context.Tariffs.Where(t => t.IsActive).ToListAsync();
+                return View(model);
             }
 
-            model.AvailableTariffs = await _context.Tariffs.Where(t => t.IsActive).ToListAsync();
-            return View(model);
+            // 1. FORCE THE AMOUNT (Ignore what the client sent)
+            model.Amount = tariff.Amount.ToString("F2");
+            model.TariffName = tariff.Name;
+
+            // 2. CHECK MONTHLY LIMIT
+            var currentMonth = DateTime.UtcNow.Month;
+            var currentYear = DateTime.UtcNow.Year;
+
+            var existingPayment = await _context.Payments
+                .Where(p => p.UserId == user.Id
+                         && p.TariffId == model.TariffId
+                         && p.Status == "Paid"
+                         && p.PaymentDate.Month == currentMonth
+                         && p.PaymentDate.Year == currentYear)
+                .FirstOrDefaultAsync();
+
+            if (existingPayment != null)
+            {
+                ModelState.AddModelError("", $"You have already paid for {tariff.Name} this month. You can only pay once per month.");
+            }
+
+            // 3. VALIDATE CARD DETAILS
+            var cleanCardNumber = model.CardNumber?.Replace(" ", "") ?? "";
+
+            if (!CardValidator.IsValidCardNumber(cleanCardNumber))
+            {
+                ModelState.AddModelError("CardNumber", "Invalid card number. Please check and try again.");
+            }
+            if (!CardValidator.IsValidExpiryDate(model.ExpiryDate))
+            {
+                ModelState.AddModelError("ExpiryDate", "Card is expired or invalid.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.AvailableTariffs = await _context.Tariffs.Where(t => t.IsActive).ToListAsync();
+                return View(model);
+            }
+
+            // 4. SIMULATE PAYMENT PROCESSING (Delay happens BEFORE DB operations to prevent SQL timeouts)
+            await Task.Delay(1500);
+
+            var reference = GenerateReference();
+
+            var payment = new Payment
+            {
+                UserId = user.Id,
+                TariffId = model.TariffId,
+                Amount = tariff.Amount, // Safely stored as decimal
+                Reference = reference,
+                Status = "Pending",
+                PaymentDate = DateTime.UtcNow,
+                PaymentMethod = "Card (Simulated)",
+                Notes = $"Card ending in {cleanCardNumber.Substring(cleanCardNumber.Length - 4)}"
+            };
+
+            _context.Payments.Add(payment);
+            await _context.SaveChangesAsync();
+
+            // After _context.SaveChangesAsync(); in MakePayment POST
+            var notificationService = HttpContext.RequestServices.GetRequiredService<Kovsie_Living.Services.NotificationService>();
+            await notificationService.NotifyAdminsAndOfficers($"{user.FullName} has paid R {payment.Amount:N2} for {tariff.Name}.", "success");
+
+            // 5. PREVENT EF TRACKING CRASHES ON REDIRECT
+            // Detach the user and tariff so EF Core doesn't try to update them again on redirect
+            _context.Entry(user).State = EntityState.Detached;
+            _context.Entry(tariff).State = EntityState.Detached;
+
+            TempData["message"] = $"Payment of R{payment.Amount} for {tariff.Name} submitted successfully! Awaiting approval.";
+            TempData["messageType"] = "info";
+
+            // Explicitly route to the Web Payment Success page
+            return RedirectToAction("Success", "Payment", new { id = payment.PaymentId });
         }
 
         [HttpGet]
@@ -91,12 +137,7 @@ namespace Kovsie_Living.Controllers
                 .Include(p => p.Tariff)
                 .FirstOrDefaultAsync(p => p.PaymentId == id && p.UserId == userId);
 
-            if (payment == null)
-            {
-                TempData["message"] = "Payment not found";
-                TempData["messageType"] = "danger";
-                return RedirectToAction("Index", "Customer");
-            }
+            if (payment == null) return RedirectToAction("Index", "Customer");
 
             var model = new PaymentConfirmationViewModel
             {
@@ -119,10 +160,7 @@ namespace Kovsie_Living.Controllers
                 .Include(p => p.Tariff)
                 .FirstOrDefaultAsync(p => p.PaymentId == id && p.UserId == userId);
 
-            if (payment == null)
-            {
-                return RedirectToAction("Index", "Customer");
-            }
+            if (payment == null) return RedirectToAction("Index", "Customer");
 
             var model = new PaymentConfirmationViewModel
             {

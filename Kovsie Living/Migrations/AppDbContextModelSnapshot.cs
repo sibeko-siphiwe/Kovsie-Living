@@ -108,6 +108,50 @@ namespace Kovsie_Living.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Kovsie_Living.Models.ContactMessage", b =>
+                {
+                    b.Property<int>("ContactMessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContactMessageId"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ContactMessageId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ContactMessages");
+                });
+
             modelBuilder.Entity("Kovsie_Living.Models.FinancialOfficer", b =>
                 {
                     b.Property<int>("Id")
@@ -135,6 +179,38 @@ namespace Kovsie_Living.Migrations
                         .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("FinancialOfficers");
+                });
+
+            modelBuilder.Entity("Kovsie_Living.Models.Notification", b =>
+                {
+                    b.Property<int>("NotificationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("NotificationId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Kovsie_Living.Models.Payment", b =>
@@ -252,14 +328,8 @@ namespace Kovsie_Living.Migrations
                     b.Property<string>("StaffNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UnitNumber")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("VehicleNumber")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -284,14 +354,8 @@ namespace Kovsie_Living.Migrations
                     b.Property<string>("StudentNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UnitNumber")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("VehicleNumber")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -465,12 +529,32 @@ namespace Kovsie_Living.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Kovsie_Living.Models.ContactMessage", b =>
+                {
+                    b.HasOne("Kovsie_Living.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Kovsie_Living.Models.FinancialOfficer", b =>
                 {
                     b.HasOne("Kovsie_Living.Models.ApplicationUser", "User")
                         .WithOne("FinancialOfficer")
                         .HasForeignKey("Kovsie_Living.Models.FinancialOfficer", "UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Kovsie_Living.Models.Notification", b =>
+                {
+                    b.HasOne("Kovsie_Living.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

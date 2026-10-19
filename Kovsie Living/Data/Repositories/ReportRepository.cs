@@ -45,13 +45,12 @@ namespace Kovsie_Living.Data.Repositories
                 Description = description,
                 Status = "Generated",
                 ReportDataJson = JsonSerializer.Serialize(reportData),
-                FilePath = "" // Initialize empty
+                FilePath = ""
             };
 
             _context.Reports.Add(report);
             await _context.SaveChangesAsync();
 
-            // Generate PDF separately
             try
             {
                 report.FilePath = await GeneratePdfAsync(report);
@@ -59,7 +58,6 @@ namespace Kovsie_Living.Data.Repositories
             }
             catch (Exception ex)
             {
-                // If PDF generation fails, still save report but without PDF
                 Console.WriteLine($"PDF generation failed: {ex.Message}");
                 report.FilePath = "";
                 await _context.SaveChangesAsync();
@@ -70,14 +68,8 @@ namespace Kovsie_Living.Data.Repositories
 
         public async Task<CustomerReportData> GetCustomerReportDataAsync(string officerUserId, DateTime startDate, DateTime endDate)
         {
-            // Get all customers without date filtering
-            var students = await _context.Students
-                .Include(s => s.User)
-                .ToListAsync();
-
-            var staff = await _context.Staff
-                .Include(s => s.User)
-                .ToListAsync();
+            var students = await _context.Students.Include(s => s.User).ToListAsync();
+            var staff = await _context.Staff.Include(s => s.User).ToListAsync();
 
             var items = new List<CustomerReportItem>();
 
@@ -85,16 +77,13 @@ namespace Kovsie_Living.Data.Repositories
             {
                 if (student.User != null)
                 {
-                    var payments = await _context.Payments
-                        .Where(p => p.UserId == student.UserId)
-                        .ToListAsync();
+                    var payments = await _context.Payments.Where(p => p.UserId == student.UserId).ToListAsync();
 
                     items.Add(new CustomerReportItem
                     {
                         FullName = student.User.FullName,
                         UserType = "Student",
                         UserNumber = student.StudentNumber,
-                        UnitNumber = student.UnitNumber,
                         Status = student.IsApproved ? "Approved" : "Pending",
                         RegistrationDate = student.User.CreatedAt,
                         TotalPaid = payments.Where(p => p.Status == "Paid").Sum(p => p.Amount),
@@ -107,16 +96,13 @@ namespace Kovsie_Living.Data.Repositories
             {
                 if (staffMember.User != null)
                 {
-                    var payments = await _context.Payments
-                        .Where(p => p.UserId == staffMember.UserId)
-                        .ToListAsync();
+                    var payments = await _context.Payments.Where(p => p.UserId == staffMember.UserId).ToListAsync();
 
                     items.Add(new CustomerReportItem
                     {
                         FullName = staffMember.User.FullName,
                         UserType = "Staff",
                         UserNumber = staffMember.StaffNumber,
-                        UnitNumber = staffMember.UnitNumber,
                         Status = staffMember.IsApproved ? "Approved" : "Pending",
                         RegistrationDate = staffMember.User.CreatedAt,
                         TotalPaid = payments.Where(p => p.Status == "Paid").Sum(p => p.Amount),
@@ -124,9 +110,6 @@ namespace Kovsie_Living.Data.Repositories
                     });
                 }
             }
-
-            // REMOVED date filtering - show all customers
-            // If you want date filtering, use a wider range or make it optional
 
             return new CustomerReportData
             {
@@ -141,11 +124,7 @@ namespace Kovsie_Living.Data.Repositories
 
         public async Task<PaymentReportData> GetPaymentReportDataAsync(string officerUserId, DateTime startDate, DateTime endDate)
         {
-            // Get all payments without date filtering
-            var payments = await _context.Payments
-                .Include(p => p.User)
-                .Include(p => p.Tariff)
-                .ToListAsync();
+            var payments = await _context.Payments.Include(p => p.User).Include(p => p.Tariff).ToListAsync();
 
             var items = payments.Select(p => new PaymentReportItem
             {
@@ -158,9 +137,7 @@ namespace Kovsie_Living.Data.Repositories
                 ProcessedBy = p.User?.FullName ?? "Unknown"
             }).ToList();
 
-            var amountByTariff = items
-                .GroupBy(i => i.TariffName)
-                .ToDictionary(g => g.Key, g => g.Sum(i => i.Amount));
+            var amountByTariff = items.GroupBy(i => i.TariffName).ToDictionary(g => g.Key, g => g.Sum(i => i.Amount));
 
             return new PaymentReportData
             {
@@ -177,23 +154,11 @@ namespace Kovsie_Living.Data.Repositories
 
         public async Task<RevenueReportData> GetRevenueReportDataAsync(DateTime startDate, DateTime endDate)
         {
-            // Get all payments without date filtering
-            var paidPayments = await _context.Payments
-                .Include(p => p.Tariff)
-                .Where(p => p.Status == "Paid")
-                .ToListAsync();
+            var paidPayments = await _context.Payments.Include(p => p.Tariff).Where(p => p.Status == "Paid").ToListAsync();
+            var pendingPayments = await _context.Payments.Where(p => p.Status == "Pending").ToListAsync();
 
-            var pendingPayments = await _context.Payments
-                .Where(p => p.Status == "Pending")
-                .ToListAsync();
-
-            var monthlyBreakdown = paidPayments
-                .GroupBy(p => p.PaymentDate.ToString("MMM yyyy"))
-                .ToDictionary(g => g.Key, g => g.Sum(p => p.Amount));
-
-            var revenueByTariff = paidPayments
-                .GroupBy(p => p.Tariff?.Name ?? "Unknown")
-                .ToDictionary(g => g.Key, g => g.Sum(p => p.Amount));
+            var monthlyBreakdown = paidPayments.GroupBy(p => p.PaymentDate.ToString("MMM yyyy")).ToDictionary(g => g.Key, g => g.Sum(p => p.Amount));
+            var revenueByTariff = paidPayments.GroupBy(p => p.Tariff?.Name ?? "Unknown").ToDictionary(g => g.Key, g => g.Sum(p => p.Amount));
 
             return new RevenueReportData
             {
@@ -204,31 +169,25 @@ namespace Kovsie_Living.Data.Repositories
                 RevenueByTariff = revenueByTariff
             };
         }
-        
+
         public async Task<string> GeneratePdfAsync(Report report)
         {
             try
             {
                 var pdfBytes = _pdfService.GenerateReportPdf(report);
-
                 var reportsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "reports");
-                if (!Directory.Exists(reportsFolder))
-                {
-                    Directory.CreateDirectory(reportsFolder);
-                }
+                if (!Directory.Exists(reportsFolder)) Directory.CreateDirectory(reportsFolder);
 
                 var fileName = $"report_{report.ReportId}_{DateTime.UtcNow:yyyyMMddHHmmss}.pdf";
                 var filePath = Path.Combine(reportsFolder, fileName);
 
                 await File.WriteAllBytesAsync(filePath, pdfBytes);
-
                 return $"/reports/{fileName}";
             }
             catch (Exception ex)
-            { 
+            {
                 Console.WriteLine($"PDF Generation Error: {ex.Message}");
-                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
-                throw;  
+                throw;
             }
         }
     }

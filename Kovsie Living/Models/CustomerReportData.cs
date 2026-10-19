@@ -12,11 +12,10 @@
 
     public class CustomerReportItem
     {
-        public string FullName { get; set; } 
-        public string UserType { get; set; } 
-        public string UserNumber { get; set; } 
-        public string UnitNumber { get; set; } 
-        public string Status { get; set; } 
+        public string FullName { get; set; }
+        public string UserType { get; set; }
+        public string UserNumber { get; set; }
+        public string Status { get; set; }
         public DateTime RegistrationDate { get; set; }
         public decimal TotalPaid { get; set; }
         public int PaymentCount { get; set; }

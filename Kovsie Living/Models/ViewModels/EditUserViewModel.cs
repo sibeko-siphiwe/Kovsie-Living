@@ -22,15 +22,6 @@ namespace Kovsie_Living.Models.ViewModels
         [RegularExpression(@"^[0-9]+$", ErrorMessage = "Only numbers are allowed")]
         public string UserName { get; set; } = string.Empty;
 
-        [DisplayName("Unit Number")]
-        [StringLength(10, ErrorMessage = "Unit Number cannot exceed 10 characters")]
-        public string UnitNumber { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Number of Vehicles is required")]
-        [DisplayName("Number of Vehicles")]
-        [Range(0, 10, ErrorMessage = "Vehicle number must be between 0 and 10")]
-        public int VehicleNumber { get; set; }
-
         public bool IsStudent { get; set; }
 
         [DisplayName("Profile Picture")]

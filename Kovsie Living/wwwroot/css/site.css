@@ -1,3 +1,7 @@
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     background-color: #fafbfc;
 }
@@ -56,3 +60,41 @@ body {
         border-color: #34495e;
         color: #ffffff;
     }
+
+/* Polished Contact Form Inputs */
+#contact .form-control {
+    border: 1px solid #e2e8f0;
+    background-color: #f8fafc;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+    #contact .form-control:focus {
+        background-color: #ffffff;
+        border-color: #2c3e50;
+        box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+    }
+
+#contact .form-label {
+    margin-bottom: 0.4rem;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+    .password-wrapper .toggle-password {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #6c757d;
+        z-index: 10;
+        padding: 5px;
+    }
+
+        .password-wrapper .toggle-password:hover {
+            color: #2c3e50;
+        }

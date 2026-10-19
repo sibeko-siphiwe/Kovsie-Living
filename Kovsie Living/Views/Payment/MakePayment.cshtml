@@ -9,7 +9,7 @@
     <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4">
         <div>
             <h2 class="heading mb-1">Make Payment</h2>
-            <p class="text-muted mb-0">Pay for your estate services.</p>
+            <p class="text-muted mb-0">Pay for your estate services securely.</p>
         </div>
         <a asp-action="Index" asp-controller="Customer" class="btn btn-sm btn-outline-secondary">
             <i class="fas fa-arrow-left me-1"></i>Back
@@ -25,92 +25,149 @@
         </div>
     }
 
-    <div class="row g-2">
-
-        <div class="col-lg-6">
-            <div class="card stat-card h-100">
-                <div class="card-body pb-0">
+    <div class="row g-3">
+        <!-- 100% Width Container -->
+        <div class="col-lg-12">
+            <div class="card stat-card">
+                <div class="card-body p-4">
                     <h6 class="heading mb-3">Payment Details</h6>
-                </div>
-                <div class="card-body pt-0">
 
-                    <form asp-action="MakePayment" method="post">
-
+                    <form asp-action="MakePayment" method="post" id="paymentForm">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                         <div class="row g-3">
-
+                            <!-- Service Selection -->
                             <div class="col-md-12">
                                 <label asp-for="TariffId" class="form-label small text-muted text-uppercase"></label>
-                                <select asp-for="TariffId" class="form-select form-select-sm">
+                                <select asp-for="TariffId" class="form-select" id="tariffSelect">
                                     @foreach (var tariff in Model.AvailableTariffs)
                                     {
-                                        <option value="@tariff.TariffId">@tariff.Name - R @tariff.Amount.ToString("N2")</option>
+                                        <option value="@tariff.TariffId" data-amount="@tariff.Amount.ToString("F2")">@tariff.Name - R @tariff.Amount.ToString("N2")</option>
                                     }
                                 </select>
                                 <span asp-validation-for="TariffId" class="text-danger small"></span>
                             </div>
 
+                            <!-- Amount (Read-only) -->
                             <div class="col-md-12">
                                 <label asp-for="Amount" class="form-label small text-muted text-uppercase"></label>
-                                <div class="input-group input-group-sm">
+                                <div class="input-group">
                                     <span class="input-group-text">R</span>
-                                    <input asp-for="Amount" class="form-control form-control-sm" placeholder="0.00" />
+                                    <input asp-for="Amount" type="text" class="form-control bg-light" id="amountInput" readonly />
                                 </div>
                                 <span asp-validation-for="Amount" class="text-danger small"></span>
                             </div>
-
                         </div>
 
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-sm btn-dark-soft">
-                                <i class="fas fa-credit-card me-1"></i>Pay Now
+                        <hr class="my-4" />
+                        <h6 class="heading mb-3">Card Details</h6>
+
+                        <div class="row g-3">
+                            <!-- NAME ON CARD -->
+                            <div class="col-md-12">
+                                <label asp-for="CardHolderName" class="form-label small text-muted text-uppercase"></label>
+                                <input asp-for="CardHolderName" class="form-control" placeholder="e.g. LEEYOO KHUMALO" maxlength="50" id="cardName" style="text-transform: uppercase;" />
+                                <span asp-validation-for="CardHolderName" class="text-danger small"></span>
+                            </div>
+
+                            <!-- CARD NUMBER -->
+                            <div class="col-md-12">
+                                <label asp-for="CardNumber" class="form-label small text-muted text-uppercase"></label>
+                                <input asp-for="CardNumber" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" id="cardNumber" inputmode="numeric" />
+                                <small class="text-primary d-block mt-1" style="font-size: 0.75rem;">
+                                </small>
+                                <span asp-validation-for="CardNumber" class="text-danger small"></span>
+                            </div>
+
+                            <!-- EXPIRY DATE -->
+                            <div class="col-md-6">
+                                <label asp-for="ExpiryDate" class="form-label small text-muted text-uppercase"></label>
+                                <input asp-for="ExpiryDate" class="form-control" placeholder="MM/YY" maxlength="5" id="expiryDate" inputmode="numeric" />
+                                <span asp-validation-for="ExpiryDate" class="text-danger small"></span>
+                            </div>
+
+                            <!-- CVV -->
+                            <div class="col-md-6">
+                                <label asp-for="CVV" class="form-label small text-muted text-uppercase"></label>
+                                <input asp-for="CVV" class="form-control" placeholder="123" maxlength="4" type="password" id="cvv" inputmode="numeric" />
+                                <span asp-validation-for="CVV" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-2 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <p class="text-muted small mb-0">
+                                <i class="fas fa-shield-alt me-1"></i> Secured gateway
+                            </p>
+                            <button type="submit" class="btn btn-dark-soft px-4" id="submitBtn">
+                                <i class="fas fa-lock me-1"></i>Pay R <span id="btnAmount">0.00</span>
                             </button>
                         </div>
-
                     </form>
-
                 </div>
             </div>
         </div>
-
-        <div class="col-lg-6">
-            <div class="card stat-card h-100">
-                <div class="card-body pb-0">
-                    <h6 class="heading mb-3">Available Services</h6>
-                </div>
-
-                @if (Model.AvailableTariffs.Any())
-                {
-                    <table class="table table-clean mb-0 w-100">
-                        <thead>
-                            <tr>
-                                <th>Service</th>
-                                <th class="text-end">Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var tariff in Model.AvailableTariffs)
-                            {
-                                <tr>
-                                    <td class="fw-semibold">@tariff.Name</td>
-                                    <td class="text-end">R @tariff.Amount.ToString("N2")</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <div class="text-center py-5">
-                        <i class="fas fa-receipt fa-2x text-muted mb-3"></i>
-                        <h6 class="heading mb-1">No Services Available</h6>
-                        <p class="text-muted small mb-0">Services will appear here once added.</p>
-                    </div>
-                }
-            </div>
-        </div>
-
     </div>
-
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tariffSelect = document.getElementById('tariffSelect');
+            const amountInput = document.getElementById('amountInput');
+            const btnAmount = document.getElementById('btnAmount');
+            const form = document.getElementById('paymentForm');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // 1. Auto-fill amount on tariff change
+            function updateAmount() {
+                const selectedOption = tariffSelect.options[tariffSelect.selectedIndex];
+                const amount = selectedOption.getAttribute('data-amount');
+                amountInput.value = amount;
+                btnAmount.textContent = amount;
+            }
+            tariffSelect.addEventListener('change', updateAmount);
+            updateAmount();
+
+            // 2. Force Name field to only accept Letters and Spaces
+            document.getElementById('cardName').addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+            });
+
+            // 3. Format Card Number (add spaces every 4 digits, block letters)
+            document.getElementById('cardNumber').addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, ''); // Remove all non-digits
+                value = value.replace(/(.{4})/g, '$1 ').trim(); // Add space every 4 digits
+                e.target.value = value;
+            });
+
+            // 4. Format Expiry Date (auto-add slash, block letters)
+            document.getElementById('expiryDate').addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                if (value.length > 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                e.target.value = value;
+            });
+
+            // 5. CVV (Numbers only)
+            document.getElementById('cvv').addEventListener('input', function (e) {
+                this.value = this.value.replace(/\D/g, '');
+            });
+
+            // 6. Simulate processing on submit
+            form.addEventListener('submit', function(e) {
+                if ($(form).valid()) {
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
+                    submitBtn.disabled = true;
+                }
+            });
+
+            // 7. Fix button if server returns validation errors
+            if ($('.field-validation-error').length > 0) {
+                submitBtn.innerHTML = '<i class="fas fa-lock me-1"></i>Pay R <span id="btnAmount">' + amountInput.value + '</span>';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+}

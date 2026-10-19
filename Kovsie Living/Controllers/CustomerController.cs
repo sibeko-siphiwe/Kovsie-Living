@@ -6,11 +6,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace Kovsie_Living.Controllers
 {
+    [Authorize(Roles = "Customer, Administrator, Officer")]
     public class CustomerController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -37,9 +36,7 @@ namespace Kovsie_Living.Controllers
             var isStudent = user.Student != null;
             var isStaff = user.Staff != null;
             var isApproved = isStudent ? (user.Student?.IsApproved ?? false) : (isStaff ? (user.Staff?.IsApproved ?? false) : false);
-            var unitNumber = isStudent ? user.Student?.UnitNumber : (isStaff ? user.Staff?.UnitNumber : "N/A");
 
-            // Get payment stats - REAL DATA
             var payments = await _context.Payments
                 .Where(p => p.UserId == userId)
                 .ToListAsync();
@@ -48,7 +45,6 @@ namespace Kovsie_Living.Controllers
             var pendingPayments = payments.Where(p => p.Status == "Pending").Sum(p => p.Amount);
             var transactionCount = payments.Count;
 
-            // Get recent transactions - REAL DATA (Last 5)
             var recentTransactions = await _context.Payments
                 .Include(p => p.Tariff)
                 .Where(p => p.UserId == userId)
@@ -61,12 +57,11 @@ namespace Kovsie_Living.Controllers
                 User = user,
                 IsStudent = isStudent,
                 IsStaff = isStaff,
-                UnitNumber = unitNumber ?? "N/A",
                 IsApproved = isApproved,
                 TotalPaid = totalPaid,
                 PendingPayments = pendingPayments,
                 TransactionCount = transactionCount,
-                RecentTransactions = recentTransactions  // ← NEW
+                RecentTransactions = recentTransactions
             };
 
             return View(model);
@@ -98,21 +93,13 @@ namespace Kovsie_Living.Controllers
             var roles = await _userManager.GetRolesAsync(user);
             var role = roles.FirstOrDefault() ?? "Customer";
 
-            // REAL payment data
             var payments = await _context.Payments
                 .Where(p => p.UserId == id)
                 .ToListAsync();
 
-            ViewBag.TotalPaid = payments
-                .Where(p => p.Status == "Paid")
-                .Sum(p => p.Amount);
-
-            ViewBag.TotalPending = payments
-                .Where(p => p.Status == "Pending")
-                .Sum(p => p.Amount);
-
+            ViewBag.TotalPaid = payments.Where(p => p.Status == "Paid").Sum(p => p.Amount);
+            ViewBag.TotalPending = payments.Where(p => p.Status == "Pending").Sum(p => p.Amount);
             ViewBag.PaymentsCount = payments.Count;
-
             ViewBag.UserRole = role;
 
             return View(user);
@@ -166,8 +153,6 @@ namespace Kovsie_Living.Controllers
                             var student = new Student
                             {
                                 StudentNumber = model.UserName.Trim(),
-                                UnitNumber = model.UnitNumber?.Trim(),
-                                VehicleNumber = model.VehicleNumber,
                                 IsApproved = true,
                                 UserId = user.Id
                             };
@@ -178,8 +163,6 @@ namespace Kovsie_Living.Controllers
                             var staff = new Staff
                             {
                                 StaffNumber = model.UserName.Trim(),
-                                UnitNumber = model.UnitNumber?.Trim(),
-                                VehicleNumber = model.VehicleNumber,
                                 IsApproved = true,
                                 UserId = user.Id
                             };
@@ -192,7 +175,7 @@ namespace Kovsie_Living.Controllers
                         {
                             await _context.SaveChangesAsync();
                             TempData["message"] = $"User {user.FullName} created successfully!";
-                            TempData["messageType"] = "success"; 
+                            TempData["messageType"] = "success";
                             return RedirectToAction("Customers", "Dashboard");
                         }
 
@@ -245,17 +228,6 @@ namespace Kovsie_Living.Controllers
                 IsStudent = user.Student != null,
             };
 
-            if (user.Student != null)
-            {
-                model.UnitNumber = user.Student.UnitNumber;
-                model.VehicleNumber = user.Student.VehicleNumber;
-            }
-            else if (user.Staff != null)
-            {
-                model.UnitNumber = user.Staff.UnitNumber;
-                model.VehicleNumber = user.Staff.VehicleNumber;
-            }
-
             return View(model);
         }
 
@@ -295,14 +267,10 @@ namespace Kovsie_Living.Controllers
                 if (user.Student != null)
                 {
                     user.Student.StudentNumber = model.UserName;
-                    user.Student.UnitNumber = model.UnitNumber;
-                    user.Student.VehicleNumber = model.VehicleNumber;
                 }
                 else if (user.Staff != null)
                 {
                     user.Staff.StaffNumber = model.UserName;
-                    user.Staff.UnitNumber = model.UnitNumber;
-                    user.Staff.VehicleNumber = model.VehicleNumber;
                 }
 
                 var result = await _userManager.UpdateAsync(user);
@@ -318,7 +286,7 @@ namespace Kovsie_Living.Controllers
                     }
                     else
                     {
-                        return RedirectToAction("Profile", "Account");
+                        return RedirectToAction("Profile", "Customer");
                     }
                 }
 
@@ -368,7 +336,7 @@ namespace Kovsie_Living.Controllers
 
                 if (result.Succeeded)
                 {
-                    if (User.IsInRole("Administrator")|| User.IsInRole("Officer"))
+                    if (User.IsInRole("Administrator") || User.IsInRole("Officer"))
                     {
                         TempData["message"] = "Password changed successfully";
                         TempData["messageType"] = "success";
@@ -404,19 +372,10 @@ namespace Kovsie_Living.Controllers
                 TempData["messageType"] = "danger";
                 return RedirectToAction("Customers", "Dashboard");
             }
-             
-            if (user.Student != null)
-            {
-                _context.Students.Remove(user.Student);
-            }
-            if (user.Staff != null)
-            {
-                _context.Staff.Remove(user.Staff);
-            }
-            if (user.FinancialOfficer != null)
-            {
-                _context.FinancialOfficers.Remove(user.FinancialOfficer);
-            }
+
+            if (user.Student != null) _context.Students.Remove(user.Student);
+            if (user.Staff != null) _context.Staff.Remove(user.Staff);
+            if (user.FinancialOfficer != null) _context.FinancialOfficers.Remove(user.FinancialOfficer);
 
             await _context.SaveChangesAsync();
 
@@ -482,7 +441,7 @@ namespace Kovsie_Living.Controllers
             if (user == null)
             {
                 TempData["message"] = "User not found";
-                TempData["messageType"] = "danger"; 
+                TempData["messageType"] = "danger";
                 return RedirectToAction("Customers", "Dashboard");
             }
 
@@ -519,17 +478,6 @@ namespace Kovsie_Living.Controllers
                 CurrentProfilePicture = user.ProfilePicture,
                 CurrentProfilePictureContentType = user.ProfilePictureContentType
             };
-
-            if (user.Student != null)
-            {
-                model.UnitNumber = user.Student.UnitNumber;
-                model.VehicleNumber = user.Student.VehicleNumber;
-            }
-            else if (user.Staff != null)
-            {
-                model.UnitNumber = user.Staff.UnitNumber;
-                model.VehicleNumber = user.Staff.VehicleNumber;
-            }
 
             return View(model);
         }
@@ -576,17 +524,6 @@ namespace Kovsie_Living.Controllers
                 user.LastName = model.LastName;
                 user.UserName = model.UserName;
                 user.Email = $"{model.UserName}@ufs.ac.za";
-
-                if (user.Student != null)
-                {
-                    user.Student.UnitNumber = model.UnitNumber;
-                    user.Student.VehicleNumber = model.VehicleNumber;
-                }
-                else if (user.Staff != null)
-                {
-                    user.Staff.UnitNumber = model.UnitNumber;
-                    user.Staff.VehicleNumber = model.VehicleNumber;
-                }
 
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)

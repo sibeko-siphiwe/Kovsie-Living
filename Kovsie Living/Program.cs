@@ -3,6 +3,7 @@ using Kovsie_Living.Data.Repositories;
 using Kovsie_Living.Data.SeedData;
 using Kovsie_Living.Helpers;
 using Kovsie_Living.Models;
+using Kovsie_Living.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -65,6 +66,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<PdfService>();
 builder.Services.AddScoped<JwtHelper>();
 

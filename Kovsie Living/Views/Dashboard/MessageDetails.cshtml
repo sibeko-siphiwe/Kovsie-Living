@@ -1,0 +1,114 @@
+﻿@model ContactMessage
+@{
+    ViewData["Title"] = "Message Details";
+    Layout = "_DashboardLayout";
+}
+
+<div class="container-fluid p-0">
+
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-4">
+        <div>
+            <h2 class="heading mb-1">Message Details</h2>
+            <p class="text-muted mb-0">Read and manage the contact message.</p>
+        </div>
+        <a asp-action="Messages" asp-controller="Dashboard" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Inbox
+        </a>
+    </div>
+
+    <div class="row g-2">
+        <div class="col-lg-8">
+            <div class="card stat-card">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                        <div>
+                            <h5 class="heading mb-1">@Model.Subject</h5>
+                            <p class="text-muted small mb-0">
+                                From <span class="fw-semibold text-dark">@Model.FullName</span>
+                                &lt;@Model.Email&gt; on @Model.SubmittedAt.ToString("dd MMM yyyy, HH:mm")
+                            </p>
+                        </div>
+                        @if (Model.IsRead)
+                        {
+                            <span class="badge-soft-green">Read</span>
+                        }
+                        else
+                        {
+                            <span class="badge-soft-yellow">Unread</span>
+                        }
+                    </div>
+
+                    <div class="border-top pt-3">
+                        <p class="mb-0" style="white-space: pre-wrap;">@Model.Message</p>
+                    </div>
+
+                    <div class="border-top mt-4 pt-3 d-flex flex-wrap gap-2">
+                        <a href="mailto:@Model.Email?subject=Re: @Model.Subject"
+                           class="btn btn-sm btn-dark-soft">
+                            <i class="fas fa-reply me-1"></i>Reply by Email
+                        </a>
+
+                        <form asp-action="ToggleMessageRead" method="post" class="m-0">
+                            <input type="hidden" name="id" value="@Model.ContactMessageId" />
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas @(Model.IsRead ? "fa-envelope" : "fa-envelope-open") me-1"></i>
+                                Mark as @(Model.IsRead ? "Unread" : "Read")
+                            </button>
+                        </form>
+
+                        <form asp-action="DeleteMessage" method="post" class="m-0"
+                              onsubmit="return confirm('Delete this message? This cannot be undone.')">
+                            <input type="hidden" name="id" value="@Model.ContactMessageId" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash me-1"></i>Delete
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card stat-card">
+                <div class="card-body pb-0">
+                    <h6 class="heading mb-3">Sender Information</h6>
+                </div>
+                <table class="table table-clean mb-0 w-100">
+                    <tbody>
+                        <tr>
+                            <td class="text-muted">Full Name</td>
+                            <td class="fw-semibold text-end">@Model.FullName</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Email</td>
+                            <td class="fw-semibold text-end text-break">@Model.Email</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Submitted</td>
+                            <td class="fw-semibold text-end">@Model.SubmittedAt.ToString("dd MMM yyyy")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Linked User</td>
+                            <td class="fw-semibold text-end">
+                                @if (Model.User != null)
+                                {
+                                    <a asp-action="Details" asp-controller="Customer" asp-route-id="@Model.User.Id"
+                                       class="text-decoration-none">
+                                        @Model.User.FullName
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Guest</span>
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

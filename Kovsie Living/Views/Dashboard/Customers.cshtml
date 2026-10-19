@@ -90,7 +90,6 @@
                         <th>Full Name</th>
                         <th>Username</th>
                         <th>User Type</th>
-                        <th>Unit Number</th>
                         <th>Approval</th>
                         <th>Account Status</th>
                         <th></th>
@@ -122,20 +121,6 @@
                                 }
                             </td>
                             <td>
-                                @if (isStudent)
-                                {
-                                    @user.Student?.UnitNumber
-                                }
-                                else if (isStaff)
-                                {
-                                    @user.Staff?.UnitNumber
-                                }
-                                else
-                                {
-                                    <span class="text-muted">N/A</span>
-                                }
-                            </td>
-                            <td>
                                 @if (isApproved)
                                 {
                                     <span class="badge-soft-green">Approved</span>
@@ -157,7 +142,7 @@
                             </td>
                             <td class="text-nowrap text-end">
                                 <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary type="button" data-bs-toggle="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
                                         <i class="fas fa-ellipsis"></i>
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-sm dropdown-menu-end">

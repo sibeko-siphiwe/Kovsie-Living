@@ -69,6 +69,11 @@
                         <i class="fas fa-file-alt"></i>Reports
                     </a>
                 </li>
+                <li>
+                    <a asp-action="Messages" asp-controller="Dashboard">
+                        <i class="fas fa-envelope"></i>Messages
+                    </a>
+                </li>
             }
 
             @if (User.IsInRole("Officer"))
@@ -133,49 +138,82 @@
                 </a>
             </div>
 
-            <div class="dropdown">
-                <button class="btn user-dropdown d-flex align-items-center gap-2 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <!-- WRAPPED IN A FLEX CONTAINER FOR THE BELL AND PROFILE -->
+            <div class="d-flex align-items-center gap-3">
 
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                        <img src="@Url.Action("ProfilePicture", "Account", new { id = userId })"
-                             alt="Profile"
-                             class="user-avatar"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                        <div class="user-avatar" style="display: none;">
-                            <i class="fas fa-user"></i>
-                        </div>
-                    }
+                <!-- NOTIFICATION BELL -->
+                @if (User.IsInRole("Administrator") || User.IsInRole("Officer"))
+                {
+                    <div class="dropdown">
+                        <button class="btn position-relative p-0 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="notificationBell">
+                            <i class="fas fa-bell fs-5 text-muted"></i>
+                            <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem;">
+                                0
+                            </span>
+                        </button>
 
-                    <div class="text-start d-none d-sm-block">
-                        <div class="fw-semibold small text-dark">@User.Identity.Name</div>
-                        <div class="text-muted" style="font-size: 0.72rem;">
-                            @if (User.IsInRole("Administrator"))
-                            {
-                                @:Administrator
-                            }
-                            else if (User.IsInRole("Officer"))
-                            {
-                                @:Financial Officer
-                            }
-                            else
-                            {
-                                @:Customer
-                            }
+                        <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-0" style="width: 320px; max-height: 400px; overflow-y: auto;" id="notificationDropdown">
+                            <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
+                                <h6 class="heading mb-0">Notifications</h6>
+                                <span class="badge bg-secondary" id="dropdownUnreadCount">0 New</span>
+                            </div>
+
+                            <div id="notificationList" class="list-group list-group-flush">
+                                <div class="text-center py-4 text-muted small">Loading...</div>
+                            </div>
+
+                            <div class="p-2 border-top text-center bg-light">
+                                <a asp-action="Notifications" asp-controller="Dashboard" class="text-decoration-none small fw-semibold text-dark">View All Notifications</a>
+                            </div>
                         </div>
                     </div>
-                    <i class="fas fa-chevron-down text-muted small d-none d-sm-block"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <form asp-action="Logout" asp-controller="Account" method="post" class="m-0">
-                            <button type="submit" class="dropdown-item">
-                                <i class="fas fa-door-open me-2"></i>Sign Out
-                            </button>
-                        </form>
-                    </li>
-                </ul>
+                }
+
+                <!-- USER PROFILE DROPDOWN -->
+                <div class="dropdown">
+                    <button class="btn user-dropdown d-flex align-items-center gap-2 border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                            <img src="@Url.Action("ProfilePicture", "Account", new { id = userId })"
+                                 alt="Profile"
+                                 class="user-avatar"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <div class="user-avatar" style="display: none;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        }
+
+                        <div class="text-start d-none d-sm-block">
+                            <div class="fw-semibold small text-dark">@User.Identity.Name</div>
+                            <div class="text-muted" style="font-size: 0.72rem;">
+                                @if (User.IsInRole("Administrator"))
+                                {
+                                    @:Administrator
+                                }
+                                else if (User.IsInRole("Officer"))
+                                {
+                                    @:Financial Officer
+                                }
+                                else
+                                {
+                                    @:Customer
+                                }
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-down text-muted small d-none d-sm-block"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <form asp-action="Logout" asp-controller="Account" method="post" class="m-0">
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-door-open me-2"></i>Sign Out
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -245,6 +283,11 @@
                             <i class="fas fa-file-alt"></i>Reports
                         </a>
                     </li>
+                    <li>
+                        <a asp-action="Messages" asp-controller="Dashboard">
+                            <i class="fas fa-envelope"></i>Messages
+                        </a>
+                    </li>
                 }
 
                 @if (User.IsInRole("Officer"))
@@ -303,5 +346,75 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- NOTIFICATION POLLING SCRIPT -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            @if (User.IsInRole("Administrator") || User.IsInRole("Officer"))
+            {
+                    <text>
+                    function fetchNotifications() {
+                        fetch('/Dashboard/GetNotifications')
+                            .then(response => response.json())
+                            .then(data => {
+                                const badge = document.getElementById('notificationBadge');
+                                const dropdownCount = document.getElementById('dropdownUnreadCount');
+                                const list = document.getElementById('notificationList');
+
+                                // Update Badge
+                                if (data.unreadCount > 0) {
+                                    badge.textContent = data.unreadCount;
+                                    badge.style.display = 'inline-block';
+                                    dropdownCount.textContent = data.unreadCount + ' New';
+                                    dropdownCount.classList.replace('bg-secondary', 'bg-danger');
+                                } else {
+                                    badge.style.display = 'none';
+                                    dropdownCount.textContent = '0 New';
+                                    dropdownCount.classList.replace('bg-danger', 'bg-secondary');
+                                }
+
+                                // Build Dropdown List
+                                if (data.notifications.length === 0) {
+                                    list.innerHTML = '<div class="text-center py-4 text-muted small">No notifications yet.</div>';
+                                } else {
+                                    let html = '';
+                                    data.notifications.forEach(n => {
+                                        let icon = 'fa-info-circle text-info';
+                                        if (n.type === 'success') icon = 'fa-check-circle text-success';
+                                        if (n.type === 'warning') icon = 'fa-exclamation-triangle text-warning';
+
+                                        let bgClass = n.isRead ? 'bg-white' : 'bg-light';
+
+                                        html += `
+                                            <div class="list-group-item list-group-item-action ${bgClass} d-flex gap-3 py-3 border-bottom">
+                                                <i class="fas ${icon} mt-1 fs-5"></i>
+                                                <div>
+                                                    <p class="mb-1 small text-dark" style="line-height: 1.4;">${n.message}</p>
+                                                    <small class="text-muted" style="font-size: 0.7rem;"><i class="far fa-clock me-1"></i>${n.timeAgo}</small>
+                                                </div>
+                                            </div>
+                                        `;
+                                    });
+                                    list.innerHTML = html;
+                                }
+                            });
+                    }
+
+                    // Poll every 15 seconds
+                    fetchNotifications();
+                    setInterval(fetchNotifications, 15000);
+
+                    // When clicking the bell, mark as read after opening
+                    document.getElementById('notificationBell').addEventListener('click', function() {
+                        setTimeout(() => {
+                            fetch('/Dashboard/MarkNotificationsRead', { method: 'POST' })
+                                .then(() => fetchNotifications());
+                        }, 2000);
+                    });
+                    </text>
+            }
+        });
+    </script>
 </body>
 </html>

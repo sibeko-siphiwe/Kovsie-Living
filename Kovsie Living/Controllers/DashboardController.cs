@@ -47,7 +47,7 @@ namespace Kovsie_Living.Controllers
                 .Take(10)
                 .ToList();
 
-            // NEW: Calculate Total Revenue (sum of all paid payments)
+            // Calculate Total Revenue
             var totalRevenue = _context.Payments
                 .Where(p => p.Status == "Paid")
                 .Sum(p => p.Amount);
@@ -63,16 +63,16 @@ namespace Kovsie_Living.Controllers
                 PendingUsers = pendingUsers,
                 PendingPaymentsCount = pendingPaymentsCount,
                 RecentPayments = recentPayments,
-                TotalRevenue = totalRevenue  // ← NEW
+                TotalRevenue = totalRevenue
             };
 
             return View(model);
         }
 
         public IActionResult Customers(string searchTerm, string userTypeFilter, string statusFilter, int page = 1)
-        { 
+        {
             var customers = _repository.GetAllCustomers().AsQueryable();
-             
+
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 searchTerm = searchTerm.ToLower().Trim();
@@ -83,7 +83,7 @@ namespace Kovsie_Living.Controllers
                     (u.Email != null && u.Email.ToLower().Contains(searchTerm))
                 );
             }
-             
+
             if (!string.IsNullOrEmpty(userTypeFilter))
             {
                 if (userTypeFilter == "Student")
@@ -95,7 +95,7 @@ namespace Kovsie_Living.Controllers
                     customers = customers.Where(u => u.Staff != null);
                 }
             }
-             
+
             if (!string.IsNullOrEmpty(statusFilter))
             {
                 if (statusFilter == "Active")
@@ -115,7 +115,7 @@ namespace Kovsie_Living.Controllers
                          (u.Staff != null && !u.Staff.IsApproved)));
                 }
             }
-             
+
             int pageSize = 10;
             int totalCount = customers.Count();
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
@@ -125,7 +125,7 @@ namespace Kovsie_Living.Controllers
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
-             
+
             ViewBag.SearchTerm = searchTerm;
             ViewBag.UserTypeFilter = userTypeFilter;
             ViewBag.StatusFilter = statusFilter;
@@ -140,7 +140,7 @@ namespace Kovsie_Living.Controllers
         public IActionResult Officers(string searchTerm, string statusFilter)
         {
             var officers = _repository.GetAllOfficers().AsQueryable();
-             
+
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 searchTerm = searchTerm.ToLower().Trim();
@@ -152,7 +152,7 @@ namespace Kovsie_Living.Controllers
                     (o.FinancialOfficer != null && o.FinancialOfficer.EmployeeNumber.ToLower().Contains(searchTerm))
                 );
             }
-             
+
             if (!string.IsNullOrEmpty(statusFilter))
             {
                 if (statusFilter == "Active")
@@ -198,6 +198,10 @@ namespace Kovsie_Living.Controllers
             payment.PaymentDate = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
+            // Trigger Notification
+            var notificationService = HttpContext.RequestServices.GetRequiredService<Kovsie_Living.Services.NotificationService>();
+            await notificationService.NotifyAdminsAndOfficers($"{User.Identity.Name} approved payment for {payment.User.FullName} - R {payment.Amount:N2}.", "success");
+
             TempData["message"] = $"Payment of R{payment.Amount} from {payment.User.FullName} approved!";
             TempData["messageType"] = "success";
 
@@ -227,6 +231,176 @@ namespace Kovsie_Living.Controllers
             TempData["messageType"] = "danger";
 
             return RedirectToAction("Index");
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> Messages(string searchTerm, string statusFilter, int page = 1)
+        {
+            var messages = _context.ContactMessages
+                .Include(m => m.User)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower().Trim();
+                messages = messages.Where(m =>
+                    m.FullName.ToLower().Contains(searchTerm) ||
+                    m.Email.ToLower().Contains(searchTerm) ||
+                    m.Subject.ToLower().Contains(searchTerm) ||
+                    m.Message.ToLower().Contains(searchTerm));
+            }
+
+            if (!string.IsNullOrWhiteSpace(statusFilter))
+            {
+                if (statusFilter == "Unread")
+                    messages = messages.Where(m => !m.IsRead);
+                else if (statusFilter == "Read")
+                    messages = messages.Where(m => m.IsRead);
+            }
+
+            int pageSize = 10;
+            int totalCount = await messages.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var pagedMessages = await messages
+                .OrderByDescending(m => m.SubmittedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.StatusFilter = statusFilter;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalCount = totalCount;
+            ViewBag.UnreadCount = await _context.ContactMessages.CountAsync(m => !m.IsRead);
+
+            return View(pagedMessages);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> MessageDetails(int id)
+        {
+            var message = await _context.ContactMessages
+                .Include(m => m.User)
+                .FirstOrDefaultAsync(m => m.ContactMessageId == id);
+
+            if (message == null)
+            {
+                TempData["message"] = "Message not found";
+                TempData["messageType"] = "danger";
+                return RedirectToAction(nameof(Messages));
+            }
+
+            // Mark as read automatically on open
+            if (!message.IsRead)
+            {
+                message.IsRead = true;
+                await _context.SaveChangesAsync();
+            }
+
+            return View(message);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> ToggleMessageRead(int id)
+        {
+            var message = await _context.ContactMessages.FindAsync(id);
+            if (message == null)
+            {
+                TempData["message"] = "Message not found";
+                TempData["messageType"] = "danger";
+                return RedirectToAction(nameof(Messages));
+            }
+
+            message.IsRead = !message.IsRead;
+            await _context.SaveChangesAsync();
+
+            TempData["message"] = $"Message marked as {(message.IsRead ? "read" : "unread")}";
+            TempData["messageType"] = "success";
+            return RedirectToAction(nameof(Messages));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> DeleteMessage(int id)
+        {
+            var message = await _context.ContactMessages.FindAsync(id);
+            if (message == null)
+            {
+                TempData["message"] = "Message not found";
+                TempData["messageType"] = "danger";
+                return RedirectToAction(nameof(Messages));
+            }
+
+            _context.ContactMessages.Remove(message);
+            await _context.SaveChangesAsync();
+
+            TempData["message"] = "Message deleted successfully";
+            TempData["messageType"] = "success";
+            return RedirectToAction(nameof(Messages));
+        }
+
+        // ==========================================
+        // NOTIFICATION ENDPOINTS
+        // ==========================================
+
+        [HttpGet]
+        public async Task<IActionResult> GetNotifications()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            var unreadCount = await _context.Notifications
+                .CountAsync(n => n.UserId == userId && !n.IsRead);
+
+            var notifications = await _context.Notifications
+                .Where(n => n.UserId == userId)
+                .OrderByDescending(n => n.CreatedAt)
+                .Take(7)
+                .Select(n => new {
+                    n.NotificationId,
+                    n.Message,
+                    n.Type,
+                    n.IsRead,
+                    TimeAgo = n.CreatedAt.ToString("dd MMM HH:mm")
+                })
+                .ToListAsync();
+
+            return Json(new { unreadCount, notifications });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MarkNotificationsRead()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            var unread = await _context.Notifications
+                .Where(n => n.UserId == userId && !n.IsRead)
+                .ToListAsync();
+
+            foreach (var n in unread) { n.IsRead = true; }
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Notifications()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            var notifications = await _context.Notifications
+                .Where(n => n.UserId == userId)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToListAsync();
+
+            foreach (var n in notifications.Where(x => !x.IsRead)) { n.IsRead = true; }
+            await _context.SaveChangesAsync();
+
+            return View(notifications);
         }
     }
 }

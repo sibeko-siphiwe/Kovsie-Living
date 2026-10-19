@@ -145,7 +145,6 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Email</th>
-                                <th>Unit</th>
                                 <th>Status</th>
                                 <th></th>
                             </tr>
@@ -153,11 +152,9 @@
                         <tbody>
                             @foreach (var u in Model.Users.Take(5))
                             {
-                                var unit = u.Student?.UnitNumber ?? u.Staff?.UnitNumber ?? "N/A";
                                 <tr>
                                     <td class="fw-semibold">@u.FullName</td>
                                     <td class="text-muted">@u.Email</td>
-                                    <td>@unit</td>
                                     <td>
                                         <span class="@(u.IsActive ? "badge-soft-green" : "badge-soft-red")">
                                             @(u.IsActive ? "Active" : "Inactive")

@@ -32,17 +32,6 @@ namespace Kovsie_Living.Models.ViewModels
             ErrorMessage = "Password must have at least one uppercase, one lowercase, one number, and one special character (@$!%*?&)")]
         public string TemporaryPassword { get; set; } = GenerateTemporaryPassword();
 
-        [Required(ErrorMessage = "Unit Number is required")]
-        [DisplayName("Unit Number")]
-        [StringLength(20, MinimumLength = 1, ErrorMessage = "Unit Number must be between 1 and 20 characters")]
-        [RegularExpression(@"^[a-zA-Z0-9\s\-/]+$", ErrorMessage = "Unit Number can only contain letters, numbers, spaces, hyphens and slashes")]
-        public string UnitNumber { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Number of Vehicles is required")]
-        [DisplayName("Number of Vehicles")]
-        [Range(0, 10, ErrorMessage = "Vehicle number must be between 0 and 10")]
-        public int VehicleNumber { get; set; } = 0;
-
         [Required(ErrorMessage = "Please select user type")]
         [DisplayName("I am a Student")]
         public bool IsStudent { get; set; } = true;

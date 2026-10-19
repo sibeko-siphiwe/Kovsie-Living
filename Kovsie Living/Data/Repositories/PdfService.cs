@@ -140,7 +140,6 @@ namespace Kovsie_Living.Data.Repositories
                     columns.RelativeColumn(1);
                     columns.RelativeColumn(2);
                     columns.RelativeColumn(1);
-                    columns.RelativeColumn(1);
                     columns.RelativeColumn(2);
                     columns.RelativeColumn(2);
                 });
@@ -150,7 +149,6 @@ namespace Kovsie_Living.Data.Repositories
                     header.Cell().Element(HeaderCellStyle).Text("Name").Bold();
                     header.Cell().Element(HeaderCellStyle).Text("Type").Bold();
                     header.Cell().Element(HeaderCellStyle).Text("Number").Bold();
-                    header.Cell().Element(HeaderCellStyle).Text("Unit").Bold();
                     header.Cell().Element(HeaderCellStyle).Text("Status").Bold();
                     header.Cell().Element(HeaderCellStyle).Text("Registered").Bold();
                     header.Cell().Element(HeaderCellStyle).AlignRight().Text("Total Paid").Bold();
@@ -161,7 +159,6 @@ namespace Kovsie_Living.Data.Repositories
                     table.Cell().Element(CellStyle).Text(customer.FullName);
                     table.Cell().Element(CellStyle).Text(customer.UserType);
                     table.Cell().Element(CellStyle).Text(customer.UserNumber);
-                    table.Cell().Element(CellStyle).Text(customer.UnitNumber);
 
                     table.Cell().Element(CellStyle).Element(c =>
                         ComposeStatusBadge(c, customer.Status));

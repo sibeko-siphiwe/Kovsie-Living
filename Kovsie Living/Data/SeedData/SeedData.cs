@@ -82,15 +82,7 @@ namespace Kovsie_Living.Data.SeedData
                         IsActive = true,  
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
-                    },
-                    new Tariff
-                    {
-                        Name = "Parking Fee",
-                        Amount = 500.00m,
-                        IsActive = true,  
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                    },
+                    }, 
                     new Tariff
                     {
                         Name = "Refuse",

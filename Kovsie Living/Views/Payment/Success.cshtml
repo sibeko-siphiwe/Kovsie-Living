@@ -6,54 +6,74 @@
 
 <div class="container-fluid p-0">
 
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
+    <div class="row g-0">
+        <!-- 100% Width Container -->
+        <div class="col-12">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body py-5 px-4 px-md-5">
 
-            <div class="card stat-card text-center">
-                <div class="card-body py-5">
-
-                    <i class="fas fa-check-circle text-success mb-3" style="font-size: 3rem;"></i>
-
-                    <h3 class="heading mb-1">Payment Successful</h3>
-                    <p class="text-muted small mb-4">Your payment has been processed successfully.</p>
-
-                    <div class="text-start border-top pt-3">
-
-                        <div class="d-flex justify-content-between py-2">
-                            <span class="text-muted small text-uppercase">Service</span>
-                            <span class="fw-semibold">@Model.TariffName</span>
+                    <!-- Centered Success Icon & Header -->
+                    <div class="text-center mb-5">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle mb-3" style="width: 72px; height: 72px;">
+                            <i class="fas fa-check" style="font-size: 2rem;"></i>
                         </div>
-
-                        <div class="d-flex justify-content-between py-2 border-top">
-                            <span class="text-muted small text-uppercase">Amount</span>
-                            <span class="fw-semibold">R @Model.Amount.ToString("N2")</span>
-                        </div>
-
-                        <div class="d-flex justify-content-between py-2 border-top">
-                            <span class="text-muted small text-uppercase">Reference</span>
-                            <span class="fw-semibold">@Model.Reference</span>
-                        </div>
-
-                        <div class="d-flex justify-content-between py-2 border-top">
-                            <span class="text-muted small text-uppercase">Date</span>
-                            <span class="fw-semibold">@Model.PaymentDate.ToString("dd MMM yyyy, HH:mm")</span>
-                        </div>
-
+                        <h3 class="heading mb-2">Payment Successful</h3>
+                        <p class="text-muted">Your transaction has been processed securely.</p>
                     </div>
 
-                    <div class="d-flex gap-2 justify-content-center mt-4 pt-3 border-top">
-                        <a asp-action="History" asp-controller="Payment" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-clock-rotate-left me-1"></i>View History
-                        </a>
-                        <a asp-action="Index" asp-controller="Customer" class="btn btn-sm btn-dark-soft">
-                            <i class="fas fa-home me-1"></i>Dashboard
-                        </a>
+                    <!-- Minimalist Details List (No boxes) -->
+                    <div class="row justify-content-center">
+                        <div class="col-md-8 col-lg-8">
+
+                            <div class="d-flex justify-content-between align-items-center py-3 border-bottom border-dashed">
+                                <span class="text-muted text-uppercase small fw-bold">Service</span>
+                                <span class="fw-bold text-dark">@Model.TariffName</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center py-3 border-bottom border-dashed">
+                                <span class="text-muted text-uppercase small fw-bold">Total Paid</span>
+                                <span class="fw-bold text-dark">R @Model.Amount.ToString("N2")</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center py-3 border-bottom border-dashed">
+                                <span class="text-muted text-uppercase small fw-bold">Reference</span>
+                                <span class="font-monospace fw-semibold text-dark">@Model.Reference</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center py-3 border-bottom border-dashed">
+                                <span class="text-muted text-uppercase small fw-bold">Date & Time</span>
+                                <span class="fw-medium text-dark">@Model.PaymentDate.ToString("dd MMM yyyy, HH:mm")</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center py-3 mb-4">
+                                <span class="text-muted text-uppercase small fw-bold">Status</span>
+                                <span class="badge-soft-yellow px-3 py-1 fw-bold">Awaiting Approval</span>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="d-flex gap-3 justify-content-center mt-5">
+                                <a asp-action="History" asp-controller="Payment" class="btn btn-outline-secondary px-4 py-2">
+                                    <i class="fas fa-clock-rotate-left me-2"></i>View History
+                                </a>
+                                <a asp-action="Index" asp-controller="Customer" class="btn btn-dark-soft px-4 py-2">
+                                    <i class="fas fa-home me-2"></i>Return to Dashboard
+                                </a>
+                            </div>
+
+                        </div>
                     </div>
 
                 </div>
             </div>
-
         </div>
     </div>
 
 </div>
+
+<style>
+    /* Adds a subtle dotted line instead of a solid border */
+    .border-dashed {
+        border-bottom-style: dashed !important;
+        border-bottom-color: #dee2e6 !important;
+    }
+</style>

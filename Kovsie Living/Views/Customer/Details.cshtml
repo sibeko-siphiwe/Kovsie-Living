@@ -6,23 +6,12 @@
     var isStudent = Model.Student != null;
     var isStaff = Model.Staff != null;
     var userType = isStudent ? "Student" : (isStaff ? "Staff" : "Unknown");
-    var unitNumber = isStudent ? Model.Student?.UnitNumber : (isStaff ? Model.Staff?.UnitNumber : "N/A");
-    var vehicleCount = isStudent ? Model.Student?.VehicleNumber ?? 0 : (isStaff ? Model.Staff?.VehicleNumber ?? 0 : 0);
     var isApproved = isStudent ? (Model.Student?.IsApproved ?? false) : (isStaff ? (Model.Staff?.IsApproved ?? false) : true);
 
     string statusBadge;
-    if (!Model.IsActive)
-    {
-        statusBadge = "badge-soft-red";
-    }
-    else if (!isApproved)
-    {
-        statusBadge = "badge-soft-yellow";
-    }
-    else
-    {
-        statusBadge = "badge-soft-green";
-    }
+    if (!Model.IsActive) { statusBadge = "badge-soft-red"; }
+    else if (!isApproved) { statusBadge = "badge-soft-yellow"; }
+    else { statusBadge = "badge-soft-green"; }
 }
 
 <div class="container-fluid p-0">
@@ -76,7 +65,7 @@
     </div>
 
     <div class="row g-2 mb-4">
-        <div class="col-md-6 col-lg-3">
+        <div class="col-md-6 col-lg-4">
             <div class="card stat-card h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
@@ -87,29 +76,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="card stat-card h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <span class="text-muted small text-uppercase">Unit Number</span>
-                        <i class="fas fa-home text-muted"></i>
-                    </div>
-                    <h6 class="heading mb-0">@unitNumber</h6>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="card stat-card h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <span class="text-muted small text-uppercase">Vehicles</span>
-                        <i class="fas fa-car text-muted"></i>
-                    </div>
-                    <h6 class="heading mb-0">@vehicleCount</h6>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
+        <div class="col-md-6 col-lg-4">
             <div class="card stat-card h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
@@ -120,10 +87,24 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="card stat-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="text-muted small text-uppercase">Account Status</span>
+                        <i class="fas fa-circle-check text-muted"></i>
+                    </div>
+                    <h6 class="heading mb-0">
+                        <span class="@(Model.IsActive ? "text-success" : "text-danger")">
+                            @(Model.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </h6>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row g-2 mb-4">
-
         <div class="col-lg-6">
             <div class="card stat-card h-100">
                 <div class="card-body pb-0">
@@ -166,14 +147,6 @@
                 <table class="table table-clean mb-0 w-100">
                     <tbody>
                         <tr>
-                            <td class="text-muted">Unit Number</td>
-                            <td class="fw-semibold text-end">@unitNumber</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Vehicles</td>
-                            <td class="fw-semibold text-end">@vehicleCount</td>
-                        </tr>
-                        <tr>
                             <td class="text-muted">Account Status</td>
                             <td class="text-end">
                                 <span class="@(Model.IsActive ? "badge-soft-green" : "badge-soft-red")">
@@ -197,7 +170,6 @@
                 </table>
             </div>
         </div>
-
     </div>
 
     <div class="card stat-card mb-4">

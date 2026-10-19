@@ -15,6 +15,10 @@ namespace Kovsie_Living.Data
         public DbSet<Tariff> Tariffs { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Report> Reports { get; set; }
+        public DbSet<ContactMessage> ContactMessages { get; set; }
+
+        // ADD THIS LINE
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -50,6 +54,16 @@ namespace Kovsie_Living.Data
             builder.Entity<Tariff>(entity =>
             {
                 entity.HasKey(t => t.TariffId);
+            });
+
+            // ADD THIS BLOCK
+            builder.Entity<Notification>(entity =>
+            {
+                entity.HasKey(n => n.NotificationId);
+                entity.HasOne(n => n.User)
+                      .WithMany()
+                      .HasForeignKey(n => n.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

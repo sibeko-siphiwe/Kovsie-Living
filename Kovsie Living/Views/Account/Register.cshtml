@@ -45,28 +45,21 @@
                 <span asp-validation-for="UserName" class="text-danger small"></span>
             </div>
 
-            <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                    <label asp-for="UnitNumber" class="form-label small text-muted text-uppercase"></label>
-                    <input asp-for="UnitNumber" class="form-control form-control-sm" placeholder="e.g A450" />
-                    <span asp-validation-for="UnitNumber" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="VehicleNumber" class="form-label small text-muted text-uppercase"></label>
-                    <input asp-for="VehicleNumber" class="form-control form-control-sm" placeholder="e.g 3" />
-                    <span asp-validation-for="VehicleNumber" class="text-danger small"></span>
-                </div>
-            </div>
-
             <div class="mb-3">
                 <label asp-for="Password" class="form-label small text-muted text-uppercase"></label>
-                <input asp-for="Password" class="form-control form-control-sm" placeholder="Enter your new password" />
+                <div class="password-wrapper">
+                    <input asp-for="Password" class="form-control form-control-sm" placeholder="Enter your new password" id="registerPassword" />
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword('registerPassword', this)"></i>
+                </div>
                 <span asp-validation-for="Password" class="text-danger small"></span>
             </div>
 
             <div class="mb-3">
                 <label asp-for="ConfirmPassword" class="form-label small text-muted text-uppercase"></label>
-                <input asp-for="ConfirmPassword" class="form-control form-control-sm" placeholder="Confirm your password" />
+                <div class="password-wrapper">
+                    <input asp-for="ConfirmPassword" class="form-control form-control-sm" placeholder="Confirm your password" id="confirmPassword" />
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword('confirmPassword', this)"></i>
+                </div>
                 <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
             </div>
 
@@ -104,5 +97,18 @@
             staffRadio.addEventListener('change', updateLabel);
             updateLabel();
         });
+
+        window.togglePassword = function(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        };
     </script>
 }
