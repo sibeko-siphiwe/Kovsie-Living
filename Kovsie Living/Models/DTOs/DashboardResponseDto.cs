@@ -8,8 +8,6 @@
         public string UserName { get; set; }
         public string Role { get; set; }
         public bool IsApproved { get; set; }
-        public string UnitNumber { get; set; }
-        public int VehicleNumber { get; set; }
 
         public decimal TotalPaid { get; set; }
         public decimal PendingPayments { get; set; }

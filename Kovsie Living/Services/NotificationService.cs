@@ -1,6 +1,7 @@
 ﻿using Kovsie_Living.Data;
 using Kovsie_Living.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Kovsie_Living.Services
 {
@@ -15,6 +16,7 @@ namespace Kovsie_Living.Services
             _userManager = userManager;
         }
 
+        // Notify Admins and Officers
         public async Task NotifyAdminsAndOfficers(string message, string type = "info")
         {
             var admins = await _userManager.GetUsersInRoleAsync("Administrator");
@@ -33,6 +35,20 @@ namespace Kovsie_Living.Services
                     CreatedAt = DateTime.UtcNow
                 });
             }
+            await _context.SaveChangesAsync();
+        }
+
+        // NEW: Notify a single specific user (e.g., the Customer)
+        public async Task NotifyUser(string userId, string message, string type = "info")
+        {
+            _context.Notifications.Add(new Notification
+            {
+                UserId = userId,
+                Message = message,
+                Type = type,
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            });
             await _context.SaveChangesAsync();
         }
     }

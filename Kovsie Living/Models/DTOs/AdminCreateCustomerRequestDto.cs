@@ -14,16 +14,8 @@ namespace Kovsie_Living.Models.DTOs
 
         [Required]
         [StringLength(20, MinimumLength = 3)]
-        [RegularExpression(@"^[a-zA-Z0-9]+$",
-            ErrorMessage = "Only letters and numbers are allowed")]
+        [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = "Only letters and numbers are allowed")]
         public string UserName { get; set; }
-
-        [Required]
-        [StringLength(20, MinimumLength = 1)]
-        public string UnitNumber { get; set; }
-
-        [Range(0, 10)]
-        public int VehicleNumber { get; set; }
 
         public bool IsStudent { get; set; }
     }

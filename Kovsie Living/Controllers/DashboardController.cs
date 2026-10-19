@@ -198,9 +198,14 @@ namespace Kovsie_Living.Controllers
             payment.PaymentDate = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
-            // Trigger Notification
+            // TRIGGER NOTIFICATIONS
             var notificationService = HttpContext.RequestServices.GetRequiredService<Kovsie_Living.Services.NotificationService>();
+
+            // Notify the Admins/Officers
             await notificationService.NotifyAdminsAndOfficers($"{User.Identity.Name} approved payment for {payment.User.FullName} - R {payment.Amount:N2}.", "success");
+
+            // Notify the Customer directly
+            await notificationService.NotifyUser(payment.UserId, $"Your payment of R {payment.Amount:N2} has been approved and processed.", "success");
 
             TempData["message"] = $"Payment of R{payment.Amount} from {payment.User.FullName} approved!";
             TempData["messageType"] = "success";
@@ -226,6 +231,10 @@ namespace Kovsie_Living.Controllers
 
             payment.Status = "Rejected";
             await _context.SaveChangesAsync();
+
+            // Notify the Customer directly about rejection
+            var notificationService = HttpContext.RequestServices.GetRequiredService<Kovsie_Living.Services.NotificationService>();
+            await notificationService.NotifyUser(payment.UserId, $"Your payment of R {payment.Amount:N2} has been rejected.", "danger");
 
             TempData["message"] = $"Payment of R{payment.Amount} from {payment.User.FullName} rejected.";
             TempData["messageType"] = "danger";
@@ -292,7 +301,6 @@ namespace Kovsie_Living.Controllers
                 return RedirectToAction(nameof(Messages));
             }
 
-            // Mark as read automatically on open
             if (!message.IsRead)
             {
                 message.IsRead = true;
